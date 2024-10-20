@@ -35,6 +35,13 @@
             Console.WriteLine("Welcome to BundaHub!");
             while (true)
             {
+                // Display the menu 
+                for (int i = 0; i < _menuItems.Length; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {_menuItems[i]}");
+                }
+                
+                // Get user input
                 int choice = GetInput(_menuItems.Length, 1);
 
                 switch (choice)
