@@ -85,6 +85,29 @@ namespace BundaHub
         public void AddItem()
         {
             Console.WriteLine("Adding item...");
+                            Console.Write("Enter item name: ");
+                            string name = Console.ReadLine();
+
+                            Console.Write("Enter item price: ");
+                            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+                            {
+                                Console.WriteLine("Invalid price. Item not added.");
+                                return;
+                            }
+
+                            Console.Write("Enter item quantity: ");
+                            if (!int.TryParse(Console.ReadLine(), out int quantity))
+                            {
+                                Console.WriteLine("Invalid quantity. Item not added.");
+                                return;
+                            }
+
+                            Item newItem = new Item(name, price, quantity);
+                            Array.Resize(ref _inventory, _inventory.Length + 1);
+                            _inventory[^1] = newItem;
+
+                            Console.WriteLine("Item added successfully.");
+                            _SortInventory("name", true);
         }
 
         public void Search()

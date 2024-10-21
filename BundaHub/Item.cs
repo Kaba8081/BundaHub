@@ -3,17 +3,17 @@ namespace BundaHub
     class Item
     {
         public string Name { get; set; }
-        public int Price { get; set; }
-        public int Quantity { get; set; }
-        public int TotalPrice { get; set; }
+        public decimal Price { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal TotalPrice { get; set; }
 
         public Item(string name) : this(name, 0, 1)
         {
         }
-        public Item(string name, int price) : this(name, price, 1)
+        public Item(string name, decimal price) : this(name, price, 1)
         {   
         }
-        public Item(string name, int price, int quantity)
+        public Item(string name, decimal price, int quantity)
         {
             Name = name;
             Price = price;
