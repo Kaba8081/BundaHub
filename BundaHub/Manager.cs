@@ -121,8 +121,27 @@ namespace BundaHub
             Console.Write("Enter item name to search: ");
             string name = Console.ReadLine();
             var nameResults = _inventory.Where(i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-           
+        
             break;
+
+        case "price":
+            Console.Write("Enter minimum price: ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal minPrice))
+            {
+                Console.WriteLine("Invalid price.");
+                return;
+            }
+            Console.Write("Enter maximum price: ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal maxPrice))
+            {
+                Console.WriteLine("Invalid price.");
+                return;
+            }
+            var priceResults = _inventory.Where(i => i.Price >= minPrice && i.Price <= maxPrice).ToList();
+            
+            break;
+
+   
 
         default:
             Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
