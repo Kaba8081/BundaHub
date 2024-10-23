@@ -121,7 +121,7 @@ namespace BundaHub
             Console.Write("Enter item name to search: ");
             string name = Console.ReadLine();
             var nameResults = _inventory.Where(i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-        
+            DisplaySearchResults(nameResults);
             break;
 
         case "price":
@@ -138,7 +138,7 @@ namespace BundaHub
                 return;
             }
             var priceResults = _inventory.Where(i => i.Price >= minPrice && i.Price <= maxPrice).ToList();
-            
+            DisplaySearchResults(priceResults);
             break;
         
         case "quantity":
@@ -155,16 +155,33 @@ namespace BundaHub
                 return;
             }
             var quantityResults = _inventory.Where(i => i.Quantity >= minQuantity && i.Quantity <= maxQuantity).ToList();
-            
+            DisplaySearchResults(quantityResults);
             break;
 
-
-   
 
         default:
             Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
             break;
+
+            
     }
+    
+}
+        private void DisplaySearchResults(List<Item> results)
+{
+    if (results.Count > 0)
+    {
+        Console.WriteLine("Search Results:");
+        foreach (var item in results)
+        {
+            Console.WriteLine($"{item.Name}, Price: {item.Price}, Quantity: {item.Quantity}, Total Price: {item.TotalPrice}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("No items found.");
+    }
+    Console.WriteLine(" ");
 }
 
         }
