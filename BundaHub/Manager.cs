@@ -112,7 +112,23 @@ namespace BundaHub
 
         public void Search()
         {
-            Console.WriteLine("Searching...");
-        }
+               Console.WriteLine("Search by (name/price/quantity): ");
+    string searchBy = Console.ReadLine()?.ToLower(); 
+
+    switch (searchBy)
+    {
+        case "name":
+            Console.Write("Enter item name to search: ");
+            string name = Console.ReadLine();
+            var nameResults = _inventory.Where(i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+           
+            break;
+
+        default:
+            Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
+            break;
     }
 }
+
+        }
+    }
