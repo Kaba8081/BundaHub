@@ -140,6 +140,24 @@ namespace BundaHub
             var priceResults = _inventory.Where(i => i.Price >= minPrice && i.Price <= maxPrice).ToList();
             
             break;
+        
+        case "quantity":
+            Console.Write("Enter minimum quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out int minQuantity))
+            {
+                Console.WriteLine("Invalid quantity.");
+                return;
+            }
+            Console.Write("Enter maximum quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out int maxQuantity))
+            {
+                Console.WriteLine("Invalid quantity.");
+                return;
+            }
+            var quantityResults = _inventory.Where(i => i.Quantity >= minQuantity && i.Quantity <= maxQuantity).ToList();
+            
+            break;
+
 
    
 
