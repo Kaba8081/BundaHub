@@ -36,3 +36,11 @@ Aplikacja pracowników:
 - Brak wiedzy w zakresie zabezpieczania systemów,
 
 ## Lista zadań do wykonania
+-  Obsługa kilku magazynów
+-  Informacje ogólne dotyczące towaru
+-  System Zamówień
+-  Zarządzanie dostawami
+-  Komunikacja między magazynami
+-  Zarządzanie sektorami magazynu
+-  Specjalne ozanczenia towaru: Żyność, przechowywać poniżej x C, delikatne itp.
+-  Zarządzanie personelem 
