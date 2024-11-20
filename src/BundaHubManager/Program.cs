@@ -1,8 +1,10 @@
-﻿namespace BundaHub
+﻿using BundaHubManager.Services;
+
+namespace BundaHubManager
 {
     class Program
     {
-        private static BundaHubManager _manager = null!;
+        private static BundaManager _manager;
         private static string[] _menuItems = new string[]
         {
             "View inventory",
@@ -10,7 +12,7 @@
             "Search",
             "Exit"
         };
-        
+
         static int GetInput(int max, int min = 0)
         {
             int input;
@@ -30,7 +32,7 @@
 
         static void Main()
         {
-            _manager = new BundaHubManager();
+            _manager = new BundaManager();
 
             Console.WriteLine("Welcome to BundaHub!");
             while (true)
@@ -40,7 +42,7 @@
                 {
                     Console.WriteLine($"{i + 1}. {_menuItems[i]}");
                 }
-                
+
                 // Get user input
                 int choice = GetInput(_menuItems.Length, 1);
 
