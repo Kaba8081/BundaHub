@@ -7,6 +7,7 @@ namespace BundaHubManager.Services
     {
         private Item[] _inventory = new Item[] { }; 
         private List<Reservation> _reservations = new List<Reservation>();
+        private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
         {
@@ -114,11 +115,41 @@ namespace BundaHubManager.Services
                 return;
             }
 
-            Console.Write("Is the item fragile? (yes/no): ");
-            bool isFragile = Console.ReadLine()?.Trim().ToLower() == "yes";
+            bool isFragile;
+            while (true)
+            {
+                Console.Write("Is the item fragile? (yes/no): ");
+                string fragileInput = Console.ReadLine()?.Trim().ToLower();
+                if (fragileInput == "yes")
+                {
+                    isFragile = true;
+                    break;
+                }
+                else if (fragileInput == "no")
+                {
+                    isFragile = false;
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
 
-            Console.Write("Should the item be cold stored? (yes/no): ");
-            bool isColdStored = Console.ReadLine()?.Trim().ToLower() == "yes";
+            bool isColdStored;
+            while (true)
+            {
+                Console.Write("Should the item be cold stored? (yes/no): ");
+                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
+                if (coldStoredInput == "yes")
+                {
+                    isColdStored = true;
+                    break;
+                }
+                else if (coldStoredInput == "no")
+                {
+                    isColdStored = false;
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
 
             Item newItem = new Item(name, price, quantity, isFragile, isColdStored);
             Array.Resize(ref _inventory, _inventory.Length + 1);
@@ -214,14 +245,35 @@ namespace BundaHubManager.Services
             }
 
             var item = _inventory.FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-            if (item == null || item.Quantity < quantity)
+            if (item == null)
             {
-                Console.WriteLine("Item not available for reservation.");
+                Console.WriteLine("Item not found.");
                 return;
             }
 
+            // Calculate total reserved quantity for the item
+            int totalReservedQuantity = _reservedQuantities.ContainsKey(itemName) ? _reservedQuantities[itemName] : 0;
+
+            // Calculate available quantity for reservation
+            int availableForReservation = (int)item.Quantity - totalReservedQuantity;
+
+            if (quantity > availableForReservation)
+            {
+                Console.WriteLine($"Only {availableForReservation} items available for reservation.");
+                return;
+            }
+
+            // Update reserved quantities
+            if (_reservedQuantities.ContainsKey(itemName))
+            {
+                _reservedQuantities[itemName] += quantity;
+            }
+            else
+            {
+                _reservedQuantities[itemName] = quantity;
+            }
+
             _reservations.Add(new Reservation(itemName, quantity));
-            item.Quantity -= quantity; 
             Console.WriteLine("Reservation made successfully.");
         }
 
