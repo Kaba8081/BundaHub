@@ -10,6 +10,8 @@ namespace BundaHubManager
             "View inventory",
             "Add item",
             "Search",
+            "Make reservation",
+            "View reservations",
             "Exit"
         };
 
@@ -58,6 +60,12 @@ namespace BundaHubManager
                         _manager.Search();
                         break;
                     case 4:
+                        _manager.MakeReservation();
+                        break;
+                    case 5:
+                        _manager.ViewReservations();
+                        break;
+                    case 6:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }

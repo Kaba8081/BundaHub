@@ -1,20 +1,23 @@
 ﻿using Domain;
+using System.Collections.Generic;
 
 namespace BundaHubManager.Services
 {
     public class BundaManager
     {
-        private Item[] _inventory = new Item[] { }; // This is the inventory of the store
+        private Item[] _inventory = new Item[] { }; 
+        private List<Reservation> _reservations = new List<Reservation>();
+        private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
         {
-            // Add some items to the inventory
+
             _inventory = new Item[]
             {
-                new Item("Laptop", 1500, 10),
-                new Item("Chair", 150, 200),
-                new Item("Pen", 5, 3000),
-                new Item("Mug", 25, 130)
+                new Item("Laptop", 1500, 10, false, false),
+                new Item("Chair", 150, 200, false, false),
+                new Item("Pen", 5, 3000, false, false),
+                new Item("Mug", 25, 130, false, false)
             };
 
             _SortInventory("name", true);
@@ -24,19 +27,19 @@ namespace BundaHubManager.Services
             switch (sortBy)
             {
                 case "name":
-                    // Sort the inventory by name
+                    
                     if (ascending) Array.Sort(_inventory, (x, y) => x.Name.CompareTo(y.Name));
                     else Array.Sort(_inventory, (x, y) => y.Name.CompareTo(x.Name));
 
                     break;
                 case "price":
-                    // Sort the inventory by price
+                    
                     if (ascending) Array.Sort(_inventory, (x, y) => x.Price.CompareTo(y.Price));
                     else Array.Sort(_inventory, (x, y) => y.Price.CompareTo(x.Price));
 
                     break;
                 case "quantity":
-                    // Sort the inventory by quantity
+                    
                     if (ascending) Array.Sort(_inventory, (x, y) => x.Quantity.CompareTo(y.Quantity));
                     else Array.Sort(_inventory, (x, y) => y.Quantity.CompareTo(x.Quantity));
 
@@ -48,39 +51,47 @@ namespace BundaHubManager.Services
 
         public void ViewInventory()
         {
-            // Calculate the column sizes based on the biggest item in each column
+            
             int[] colSizes = {
                 _inventory.Max(i => i.Name.Length),
                 _inventory.Max(i => i.Price.ToString().Length),
                 _inventory.Max(i => i.Quantity.ToString().Length),
-                _inventory.Max(i => i.TotalPrice.ToString().Length)
+                _inventory.Max(i => i.TotalPrice.ToString().Length),
+                _inventory.Max(i => i.IsFragile.ToString().Length),
+                _inventory.Max(i => i.IsColdStored.ToString().Length),
             };
 
-            // the colSize could be smaller than the column header
+            
             if (colSizes[0] < "Inventory:".Length) colSizes[0] = "Inventory:".Length;
             if (colSizes[1] < "Price".Length) colSizes[1] = "Price".Length;
             if (colSizes[2] < "Quantity".Length) colSizes[2] = "Quantity".Length;
             if (colSizes[3] < "Total Price".Length) colSizes[3] = "Total Price".Length;
+            if (colSizes[4] < "Fragile".Length) colSizes[4] = "Fragile".Length;
+            if (colSizes[5] < "Cold Stored".Length) colSizes[5] = "Cold Stored".Length;
 
-            // header row
+           
             Console.Write("Inventory:".PadLeft(colSizes[0]));
             Console.Write("Price".PadLeft(colSizes[1] + 2));
             Console.Write("Quantity".PadLeft(colSizes[2] + 2));
-            Console.WriteLine("Total Price".PadLeft(colSizes[3] + 2));
+            Console.Write("Total Price".PadLeft(colSizes[3] + 2));
+            Console.Write("Fragile".PadLeft(colSizes[4] + 2));
+            Console.WriteLine("Cold Stored".PadLeft(colSizes[5] + 2));
 
-            // separator line
+            
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
 
-            // each item row
+            
             foreach (Item item in _inventory)
             {
                 Console.Write(item.Name.PadLeft(colSizes[0] + 2));
                 Console.Write(item.Price.ToString().PadLeft(colSizes[1] + 2));
                 Console.Write(item.Quantity.ToString().PadLeft(colSizes[2] + 2));
-                Console.WriteLine(item.TotalPrice.ToString().PadLeft(colSizes[3] + 2));
+                Console.Write(item.TotalPrice.ToString().PadLeft(colSizes[3] + 2));
+                Console.Write(item.IsFragile ? "Yes".PadLeft(colSizes[4] + 2) : "No".PadLeft(colSizes[4] + 2));
+                Console.WriteLine(item.IsColdStored ? "Yes".PadLeft(colSizes[5] + 2) : "No".PadLeft(colSizes[5] + 2));
             }
 
-            // separator line
+            
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
         }
 
@@ -104,7 +115,43 @@ namespace BundaHubManager.Services
                 return;
             }
 
-            Item newItem = new Item(name, price, quantity);
+            bool isFragile;
+            while (true)
+            {
+                Console.Write("Is the item fragile? (yes/no): ");
+                string fragileInput = Console.ReadLine()?.Trim().ToLower();
+                if (fragileInput == "yes")
+                {
+                    isFragile = true;
+                    break;
+                }
+                else if (fragileInput == "no")
+                {
+                    isFragile = false;
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
+
+            bool isColdStored;
+            while (true)
+            {
+                Console.Write("Should the item be cold stored? (yes/no): ");
+                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
+                if (coldStoredInput == "yes")
+                {
+                    isColdStored = true;
+                    break;
+                }
+                else if (coldStoredInput == "no")
+                {
+                    isColdStored = false;
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
+
+            Item newItem = new Item(name, price, quantity, isFragile, isColdStored);
             Array.Resize(ref _inventory, _inventory.Length + 1);
             _inventory[^1] = newItem;
 
@@ -186,5 +233,57 @@ namespace BundaHubManager.Services
             Console.WriteLine(" ");
         }
 
+        public void MakeReservation()
+        {
+            Console.Write("Enter item name to reserve: ");
+            string itemName = Console.ReadLine();
+            Console.Write("Enter quantity to reserve: ");
+            if (!int.TryParse(Console.ReadLine(), out int quantity))
+            {
+                Console.WriteLine("Invalid quantity. Reservation not made.");
+                return;
+            }
+
+            var item = _inventory.FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+            if (item == null)
+            {
+                Console.WriteLine("Item not found.");
+                return;
+            }
+
+            // Calculate total reserved quantity for the item
+            int totalReservedQuantity = _reservedQuantities.ContainsKey(itemName) ? _reservedQuantities[itemName] : 0;
+
+            // Calculate available quantity for reservation
+            int availableForReservation = (int)item.Quantity - totalReservedQuantity;
+
+            if (quantity > availableForReservation)
+            {
+                Console.WriteLine($"Only {availableForReservation} items available for reservation.");
+                return;
+            }
+
+            // Update reserved quantities
+            if (_reservedQuantities.ContainsKey(itemName))
+            {
+                _reservedQuantities[itemName] += quantity;
+            }
+            else
+            {
+                _reservedQuantities[itemName] = quantity;
+            }
+
+            _reservations.Add(new Reservation(itemName, quantity));
+            Console.WriteLine("Reservation made successfully.");
+        }
+
+        public void ViewReservations()
+        {
+            Console.WriteLine("Current Reservations:");
+            foreach (var reservation in _reservations)
+            {
+                Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
+            }
+        }
     }
 }
