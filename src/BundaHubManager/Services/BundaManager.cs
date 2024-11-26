@@ -5,12 +5,22 @@ namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
+        private ISectorManager _sectorManager;
         private ItemModel[] _inventory = new ItemModel[] { }; 
         private List<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
         {
+            _sectorManager = new SectorManager();
+            _sectorManager.AddSector(new SectorModel(1, "Food storage", 100));
+            _sectorManager.AddSubSector(1, 50);
+            _sectorManager.AddSubSector(1, 50);
+
+            _sectorManager.AddSector(new SectorModel(2, "Electronics storage", 300));
+            _sectorManager.AddSubSector(2, 50);
+            _sectorManager.AddSubSector(2, 50);
+
 
             _inventory = new ItemModel[]
             {
@@ -55,6 +65,12 @@ namespace BundaHubManager.Services
             // TODO: Account for reserved quantities
 
             return _inventory;
+        }
+
+        public SectorModel[] GetSectors(string[]? parameters)
+        {
+            if (parameters == null) return _sectorManager.GetSectors();
+            return _sectorManager.GetSectors(parameters);
         }
 
         public (bool, string) AddItem(ItemModel newItem)

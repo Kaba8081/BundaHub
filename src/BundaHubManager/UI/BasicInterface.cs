@@ -15,6 +15,7 @@ namespace BundaHubManager.UI
             "Search",
             "Make reservation",
             "View reservations",
+            "View sectors",
             "Exit"
         };
 
@@ -69,6 +70,22 @@ namespace BundaHubManager.UI
             Console.WriteLine(" ");
         }
 
+        private void ViewSectors()
+        {
+            var sectors = _manager.GetSectors();
+            foreach (SectorModel sector in sectors)
+            {
+                Console.WriteLine($"Sector: {sector.Label}, Capacity: {sector.GetTotalCapacity}");
+                Console.WriteLine($"Description: {sector.Description}");
+                Console.WriteLine($"Properties: {String.Join(", ", sector.GetProperties)}");
+                Console.WriteLine(new string('-', 20));
+                foreach (SubSectorModel subSector in sector.SubSectors)
+                {   
+                    Console.WriteLine($"Subsector: {subSector.Label}, Capacity: {subSector.Capacity}");
+                }
+                Console.WriteLine(new string('-', 20));
+            }
+        }
         public void ViewInventory()
         {
             var inventory = _manager.GetInventory();
@@ -318,6 +335,9 @@ namespace BundaHubManager.UI
                         ViewReservations();
                         break;
                     case 6:
+                        ViewSectors();
+                        break;
+                    case 7:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }
