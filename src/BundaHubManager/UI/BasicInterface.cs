@@ -1,6 +1,7 @@
-using Domain;
+using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 using BundaHubManager.UI.Interfaces;
+using Domain.Entites;
 
 namespace BundaHubManager.UI
 {
@@ -51,7 +52,7 @@ namespace BundaHubManager.UI
             return;
         }
 
-        private static void DisplaySearchResults(List<Item> results)
+        private static void DisplaySearchResults(List<ItemModel> results)
         {
             if (results.Count > 0)
             {
@@ -77,8 +78,7 @@ namespace BundaHubManager.UI
                 inventory.Max(i => i.Price.ToString().Length),
                 inventory.Max(i => i.Quantity.ToString().Length),
                 inventory.Max(i => i.TotalPrice.ToString().Length),
-                inventory.Max(i => i.IsFragile.ToString().Length),
-                inventory.Max(i => i.IsColdStored.ToString().Length),
+                inventory.Max(i => String.Join(", ", i.GetProperties).Length),
             };
 
             
@@ -86,29 +86,26 @@ namespace BundaHubManager.UI
             if (colSizes[1] < "Price".Length) colSizes[1] = "Price".Length;
             if (colSizes[2] < "Quantity".Length) colSizes[2] = "Quantity".Length;
             if (colSizes[3] < "Total Price".Length) colSizes[3] = "Total Price".Length;
-            if (colSizes[4] < "Fragile".Length) colSizes[4] = "Fragile".Length;
-            if (colSizes[5] < "Cold Stored".Length) colSizes[5] = "Cold Stored".Length;
+            if (colSizes[4] < "Properties".Length) colSizes[4] = "Properties".Length;
 
            
             Console.Write("Inventory:".PadLeft(colSizes[0]));
             Console.Write("Price".PadLeft(colSizes[1] + 2));
             Console.Write("Quantity".PadLeft(colSizes[2] + 2));
             Console.Write("Total Price".PadLeft(colSizes[3] + 2));
-            Console.Write("Fragile".PadLeft(colSizes[4] + 2));
-            Console.WriteLine("Cold Stored".PadLeft(colSizes[5] + 2));
+            Console.WriteLine("Properties".PadLeft(colSizes[4] + 2));
 
             
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
 
             
-            foreach (var item in inventory)
+            foreach (ItemModel item in inventory)
             {
                 Console.Write(item.Name.PadLeft(colSizes[0] + 2));
                 Console.Write(item.Price.ToString().PadLeft(colSizes[1] + 2));
                 Console.Write(item.Quantity.ToString().PadLeft(colSizes[2] + 2));
                 Console.Write(item.TotalPrice.ToString().PadLeft(colSizes[3] + 2));
-                Console.Write(item.IsFragile ? "Yes".PadLeft(colSizes[4] + 2) : "No".PadLeft(colSizes[4] + 2));
-                Console.WriteLine(item.IsColdStored ? "Yes".PadLeft(colSizes[5] + 2) : "No".PadLeft(colSizes[5] + 2));
+                Console.WriteLine(String.Join(", ", item.GetProperties).PadLeft(colSizes[4] + 2));
             }
 
             
@@ -135,43 +132,41 @@ namespace BundaHubManager.UI
                 return;
             }
 
-            bool isFragile;
+            List<ItemProperties> properties = new List<ItemProperties>();
+
             while (true)
             {
                 Console.Write("Is the item fragile? (yes/no): ");
                 string fragileInput = Console.ReadLine()?.Trim().ToLower();
                 if (fragileInput == "yes")
                 {
-                    isFragile = true;
+                    properties.Add(ItemProperties.FRAGILE);
                     break;
                 }
                 else if (fragileInput == "no")
                 {
-                    isFragile = false;
                     break;
                 }
                 Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
             }
 
-            bool isColdStored;
             while (true)
             {
                 Console.Write("Should the item be cold stored? (yes/no): ");
                 string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
                 if (coldStoredInput == "yes")
                 {
-                    isColdStored = true;
+                    properties.Add(ItemProperties.FREEZER);
                     break;
                 }
                 else if (coldStoredInput == "no")
                 {
-                    isColdStored = false;
                     break;
                 }
                 Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
             }
 
-            Item newItem = new Item(name, price, quantity, isFragile, isColdStored);
+            ItemModel newItem = new ItemModel(name, price, quantity, properties.ToArray());
             var (status, message) = _manager.AddItem(newItem);
             DisplayResult(status, message);
         }
@@ -276,7 +271,7 @@ namespace BundaHubManager.UI
                 reservedQuantities[itemName] = quantity;
             }
 
-            var (status, message) = _manager.AddReservation(new Reservation(itemName, quantity));
+            var (status, message) = _manager.AddReservation(new ReservationModel(itemName, quantity));
             DisplayResult(status, message);
         }
 

@@ -1,23 +1,23 @@
-﻿using Domain;
+﻿using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 
 namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
-        private Item[] _inventory = new Item[] { }; 
-        private List<Reservation> _reservations = new List<Reservation>();
+        private ItemModel[] _inventory = new ItemModel[] { }; 
+        private List<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
         {
 
-            _inventory = new Item[]
+            _inventory = new ItemModel[]
             {
-                new Item("Laptop", 1500, 10, false, false),
-                new Item("Chair", 150, 200, false, false),
-                new Item("Pen", 5, 3000, false, false),
-                new Item("Mug", 25, 130, false, false)
+                new ItemModel("Laptop", 1500, 10, []),
+                new ItemModel("Chair", 150, 200, []),
+                new ItemModel("Pen", 5, 3000, []),
+                new ItemModel("Mug", 25, 130, [])
             };
 
             _SortInventory("name", true);
@@ -50,14 +50,14 @@ namespace BundaHubManager.Services
             }
         }
 
-        public Item[] GetInventory()
+        public ItemModel[] GetInventory()
         {
             // TODO: Account for reserved quantities
 
             return _inventory;
         }
 
-        public (bool, string) AddItem(Item newItem)
+        public (bool, string) AddItem(ItemModel newItem)
         {
             // TODO: Check if item already exists
 
@@ -69,12 +69,12 @@ namespace BundaHubManager.Services
             return (true, "Item added successfully.");
         }
 
-        public (List<Reservation>, Dictionary<string, int>) GetReservations()
+        public (List<ReservationModel>, Dictionary<string, int>) GetReservations()
         {
             return (_reservations, _reservedQuantities);
         }
 
-        public (bool, string) AddReservation(Reservation newReservation)
+        public (bool, string) AddReservation(ReservationModel newReservation)
         {
             // TODO: Check reservation validity
             // - Check if item exists
