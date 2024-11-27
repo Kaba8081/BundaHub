@@ -88,7 +88,18 @@ namespace BundaHubManager.Services
             {
                 return (false, "Item does not exist in inventory.");
             }
-            // - Check if quantity is available
+            decimal currentReservedQuantity = _reservedQuantities.ContainsKey(item.Name) ? _reservedQuantities[item.Name] : 0;
+            decimal availableQuantity = item.Quantity - currentReservedQuantity;
+
+            if (newReservation.Quantity <= 0)
+            {
+                return (false, "Reservation quantity must be greater than zero.");
+            }
+
+            if (newReservation.Quantity > availableQuantity)
+            {
+                return (false, $"Not enough items available. Requested: {newReservation.Quantity}, Available: {availableQuantity}");
+            }
             // - Check if the reservation is valid
 
             _reservations.Add(newReservation);
