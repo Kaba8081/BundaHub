@@ -82,36 +82,12 @@ namespace BundaHubManager.Services
 
         public (bool, string) AddReservation(ReservationModel newReservation)
         {
-            // TODO: Check reservation validity , Fix reservation
-            var item = _inventory.FirstOrDefault(i => i.Name.Equals(newReservation.ItemName, StringComparison.OrdinalIgnoreCase));
-            if (item == null)
-            {
-                return (false, "Item does not exist in inventory.");
-            }
-            decimal currentReservedQuantity = _reservedQuantities.ContainsKey(item.Name) ? _reservedQuantities[item.Name] : 0;
-            decimal availableQuantity = item.Quantity - currentReservedQuantity;
-
-            if (newReservation.Quantity <= 0)
-            {
-                return (false, "Reservation quantity must be greater than zero.");
-            }
-
-            if (newReservation.Quantity > availableQuantity)
-            {
-                return (false, $"Not enough items available. Requested: {newReservation.Quantity}, Available: {availableQuantity}");
-            }
-
-            if (_reservedQuantities.ContainsKey(item.Name))
-            {
-                _reservedQuantities[item.Name] += newReservation.Quantity;
-            }
-            else
-            {
-                _reservedQuantities[item.Name] = newReservation.Quantity;
-            }
-
+            // TODO: Check reservation validity
+            // - Check if item exists
+            // - Check if quantity is available
             // - Check if the reservation is valid
-
+            
+            
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
         }
