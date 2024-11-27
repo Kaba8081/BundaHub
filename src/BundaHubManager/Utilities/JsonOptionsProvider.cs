@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace BundaHubManager.Utilities
 {
-    internal class JsonOptionsProvider
+    public static class JsonOptionsProvider
     {
+        public static JsonSerializerOptions GetDefaultOptions()
+        {
+            return new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+        }
     }
 }
