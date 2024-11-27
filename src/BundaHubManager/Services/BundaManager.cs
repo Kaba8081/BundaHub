@@ -59,7 +59,13 @@ namespace BundaHubManager.Services
 
         public (bool, string) AddItem(ItemModel newItem)
         {
-            // TODO: Check if item already exists
+            foreach (var item in _inventory)
+            {
+                if (item.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (false, "Item with the same name already exists in the inventory.");
+                }
+            }
 
             Array.Resize(ref _inventory, _inventory.Length + 1);
             _inventory[^1] = newItem;
