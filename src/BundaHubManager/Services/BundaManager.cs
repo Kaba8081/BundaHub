@@ -83,10 +83,14 @@ namespace BundaHubManager.Services
         public (bool, string) AddReservation(ReservationModel newReservation)
         {
             // TODO: Check reservation validity
-            // - Check if item exists
+            var item = _inventory.FirstOrDefault(i => i.Name.Equals(newReservation.ItemName, StringComparison.OrdinalIgnoreCase));
+            if (item == null)
+            {
+                return (false, "Item does not exist in inventory.");
+            }
             // - Check if quantity is available
             // - Check if the reservation is valid
-        
+
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
         }
