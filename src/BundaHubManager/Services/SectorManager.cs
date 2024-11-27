@@ -2,6 +2,7 @@ using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 
 using System.Linq;
+using Domain.Entites;
 
 namespace BundaHubManager.Services
 {
@@ -9,11 +10,31 @@ namespace BundaHubManager.Services
     {
         SectorModel[] _sectors = new SectorModel[] { };
 
-        public SectorModel[] GetSectors(string[]? parameters)
+        private SectorModel[] _filterSectors(SectorModel[] filteredSectors, string paramType, object filters) 
         {
-            // TODO Implement filtering based on provided parameters
+            switch (paramType)
+            {
+                case "parameters":;
+                    filteredSectors = filteredSectors.Where(sector => sector.GetProperties.Contains(filters.ToString())).ToArray();
+                    break;
+            }
 
-            return _sectors;
+            return filteredSectors;
+        }
+
+        public SectorModel[] GetSectors(Dictionary<string, object>? parameters)
+        {
+            var filteredSectors = _sectors;
+
+            if (parameters != null)
+            {
+                foreach (string paramType in parameters.Keys)
+                {
+                    filteredSectors = _filterSectors(filteredSectors, paramType, parameters[paramType]);
+                }
+            }
+
+            return filteredSectors;
         }
 
         public SectorModel? GetSector(int sectorId)
