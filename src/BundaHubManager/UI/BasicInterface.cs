@@ -289,9 +289,26 @@ namespace BundaHubManager.UI
         }
         public void Update()
         {
-            Console.WriteLine("What do you want to do: (add/remove)");
+            Console.WriteLine("What do you want to do: (update/remove)");
             string Update = Console.ReadLine()?.ToLower();
-            Console.WriteLine(Update);
+            if(Update == "update"){
+                var item = new Item();
+                Console.WriteLine("\nUpdated Item Details:");
+                Console.WriteLine($"Name: {item.Name}");
+                Console.WriteLine($"Price: {item.Price}");
+                Console.WriteLine($"Quantity: {item.Quantity}");
+                Console.WriteLine($"Total Price: {item.TotalPrice}");
+
+            }
+            else if(Update == "remove"){
+
+                Console.WriteLine("2");
+            }
+            else {
+
+                Console.WriteLine("Invalid command");
+            }
+            
         }
 
         public void Run() 
