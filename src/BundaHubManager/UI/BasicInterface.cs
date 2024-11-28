@@ -2,6 +2,7 @@ using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 using BundaHubManager.UI.Interfaces;
 using Domain.Entites;
+using System.Data;
 
 namespace BundaHubManager.UI
 {
@@ -15,6 +16,7 @@ namespace BundaHubManager.UI
             "Search",
             "Make reservation",
             "View reservations",
+            "Update",
             "Exit"
         };
 
@@ -285,6 +287,12 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
             }
         }
+        public void Update()
+        {
+            Console.WriteLine("What do you want to do: (add/remove)");
+            string Update = Console.ReadLine()?.ToLower();
+            Console.WriteLine(Update);
+        }
 
         public void Run() 
         {
@@ -318,6 +326,9 @@ namespace BundaHubManager.UI
                         ViewReservations();
                         break;
                     case 6:
+                        Update();
+                    break;
+                    case 7:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }
