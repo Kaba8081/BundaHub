@@ -306,7 +306,33 @@ namespace BundaHubManager.UI
 
                 var selectedItem = inventory[selection - 1];
                 Console.WriteLine($"\nUpdating {selectedItem.Name}:");
+                
+                Console.Write("Enter new name (press Enter to keep current): ");
+                string newName = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(newName)) newName = selectedItem.Name;
 
+                Console.Write("Enter new price (press Enter to keep current): ");
+                string priceInput = Console.ReadLine();
+                decimal newPrice = selectedItem.Price;
+                if (!string.IsNullOrWhiteSpace(priceInput))
+                {
+                    if (!decimal.TryParse(priceInput, out newPrice))
+                    {
+                        Console.WriteLine("Invalid price. Update cancelled.");
+                        return;
+                    }
+                }
+                Console.Write("Enter new quantity (press Enter to keep current): ");
+                string quantityInput = Console.ReadLine();
+                decimal newQuantity = selectedItem.Quantity;
+                if (!string.IsNullOrWhiteSpace(quantityInput))
+                {
+                    if (!decimal.TryParse(quantityInput, out newQuantity))
+                    {
+                        Console.WriteLine("Invalid quantity. Update cancelled.");
+                        return;
+                    }
+                }
             }
             else if(choice == "remove"){
 
