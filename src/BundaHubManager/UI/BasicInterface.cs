@@ -333,6 +333,19 @@ namespace BundaHubManager.UI
                         return;
                     }
                 }
+                List<ItemProperties> properties = new List<ItemProperties>();
+                Console.Write("Is the item fragile? (yes/no): ");
+                string fragileInput = Console.ReadLine()?.Trim().ToLower();
+                if (fragileInput == "yes")
+                {
+                    properties.Add(ItemProperties.FRAGILE);
+                }
+                Console.Write("Should the item be cold stored? (yes/no): ");
+                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
+                if (coldStoredInput == "yes")
+                {
+                    properties.Add(ItemProperties.FREEZER);
+                }
             }
             else if(choice == "remove"){
 
