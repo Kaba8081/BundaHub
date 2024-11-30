@@ -287,19 +287,21 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
             }
         }
-        public void Update()
-        {
+        public void Update(){
+
             var inventory = _manager.GetInventory();
             ViewInventory();
+
             Console.WriteLine("What do you want to do with this invenntory ? : (update/remove)");
             string choice = Console.ReadLine()?.ToLower();
+            
             if(choice == "update"){
 
                 int ilosc = inventory.Count();
 
                 Console.Write("\nEnter the number of the item you want to update: ");
-                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc)
-                {
+                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
+
                     Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
                     return;
                 }
@@ -309,8 +311,10 @@ namespace BundaHubManager.UI
                 
                 Console.Write("Enter new name (press Enter to keep current): ");
                 string newName = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(newName)) newName = selectedItem.Name;
+                if (string.IsNullOrWhiteSpace(newName)){
 
+                    newName = selectedItem.Name;
+                }
                 Console.Write("Enter new price (press Enter to keep current): ");
                 string priceInput = Console.ReadLine();
                 decimal newPrice = selectedItem.Price;
@@ -322,30 +326,37 @@ namespace BundaHubManager.UI
                         return;
                     }
                 }
+
                 Console.Write("Enter new quantity (press Enter to keep current): ");
                 string quantityInput = Console.ReadLine();
-                decimal newQuantity = selectedItem.Quantity;
+                int newQuantity = (int)selectedItem.Quantity;  
                 if (!string.IsNullOrWhiteSpace(quantityInput))
                 {
-                    if (!decimal.TryParse(quantityInput, out newQuantity))
+                    if (!int.TryParse(quantityInput, out newQuantity))
                     {
                         Console.WriteLine("Invalid quantity. Update cancelled.");
                         return;
                     }
                 }
+
                 List<ItemProperties> properties = new List<ItemProperties>();
+
                 Console.Write("Is the item fragile? (yes/no): ");
                 string fragileInput = Console.ReadLine()?.Trim().ToLower();
-                if (fragileInput == "yes")
-                {
+                if (fragileInput == "yes"){
+
                     properties.Add(ItemProperties.FRAGILE);
                 }
+
                 Console.Write("Should the item be cold stored? (yes/no): ");
                 string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
-                if (coldStoredInput == "yes")
-                {
+
+                if (coldStoredInput == "yes"){
+
                     properties.Add(ItemProperties.FREEZER);
                 }
+                ItemModel updatedItem = new ItemModel(newName, newPrice, newQuantity, properties.ToArray());
+                
             }
             else if(choice == "remove"){
 
