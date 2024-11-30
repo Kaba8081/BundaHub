@@ -289,26 +289,21 @@ namespace BundaHubManager.UI
         }
         public void Update()
         {
-            Console.WriteLine("What do you want to do: (update/remove)");
-            string Update = Console.ReadLine()?.ToLower();
-            if(Update == "update"){
-                var item = new Item();
-                Console.WriteLine("\nUpdated Item Details:");
-                Console.WriteLine($"Name: {item.Name}");
-                Console.WriteLine($"Price: {item.Price}");
-                Console.WriteLine($"Quantity: {item.Quantity}");
-                Console.WriteLine($"Total Price: {item.TotalPrice}");
+            var inventory = _manager.GetInventory();
+            ViewInventory();
+            Console.WriteLine("What do you want to do with this invenntory ? : (update/remove)");
+            string choice = Console.ReadLine()?.ToLower();
+            if(choice == "update"){
 
-            }
-            else if(Update == "remove"){
+                Console.WriteLine("1");
+            }else if(choice == "remove"){
 
                 Console.WriteLine("2");
             }
-            else {
+            else{
 
-                Console.WriteLine("Invalid command");
+                Console.WriteLine("Innvalid choice ");
             }
-            
         }
 
         public void Run() 
