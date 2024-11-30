@@ -295,8 +295,20 @@ namespace BundaHubManager.UI
             string choice = Console.ReadLine()?.ToLower();
             if(choice == "update"){
 
-                Console.WriteLine("1");
-            }else if(choice == "remove"){
+                int ilosc = inventory.Count();
+
+                Console.Write("\nEnter the number of the item you want to update: ");
+                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc)
+                {
+                    Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
+                    return;
+                }
+
+                var selectedItem = inventory[selection - 1];
+                Console.WriteLine($"\nUpdating {selectedItem.Name}:");
+
+            }
+            else if(choice == "remove"){
 
                 Console.WriteLine("2");
             }
