@@ -341,6 +341,9 @@ namespace BundaHubManager.UI
 
                 List<ItemProperties> properties = new List<ItemProperties>();
 
+                var (status, message) = _manager.UpdateItem(selection - 1, updatedItem);
+                DisplayResult(status, message);
+
                 Console.Write("Is the item fragile? (yes/no): ");
                 string fragileInput = Console.ReadLine()?.Trim().ToLower();
                 if (fragileInput == "yes"){
