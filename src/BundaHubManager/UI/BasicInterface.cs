@@ -298,14 +298,14 @@ namespace BundaHubManager.UI
             if(choice == "update"){
 
                 int ilosc = inventory.Count();
-
+                Console.WriteLine(" ");
                 Console.Write("\nEnter the number of the item you want to update: ");
                 if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
 
                     Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
                     return;
                 }
-
+                Console.WriteLine(" ");
                 var selectedItem = inventory[selection - 1];
                 Console.WriteLine($"\nUpdating {selectedItem.Name}:");
                 
@@ -315,6 +315,7 @@ namespace BundaHubManager.UI
 
                     newName = selectedItem.Name;
                 }
+                Console.WriteLine(" ");
                 Console.Write("Enter new price (press Enter to keep current): ");
                 string priceInput = Console.ReadLine();
                 decimal newPrice = selectedItem.Price;
@@ -326,7 +327,7 @@ namespace BundaHubManager.UI
                         return;
                     }
                 }
-
+                Console.WriteLine(" ");
                 Console.Write("Enter new quantity (press Enter to keep current): ");
                 string quantityInput = Console.ReadLine();
                 int newQuantity = (int)selectedItem.Quantity;  
@@ -338,19 +339,15 @@ namespace BundaHubManager.UI
                         return;
                     }
                 }
-
+                Console.WriteLine(" ");
                 List<ItemProperties> properties = new List<ItemProperties>();
-
-                var (status, message) = _manager.UpdateItem(selection - 1, updatedItem);
-                DisplayResult(status, message);
-
                 Console.Write("Is the item fragile? (yes/no): ");
                 string fragileInput = Console.ReadLine()?.Trim().ToLower();
                 if (fragileInput == "yes"){
 
                     properties.Add(ItemProperties.FRAGILE);
                 }
-
+                Console.WriteLine(" ");
                 Console.Write("Should the item be cold stored? (yes/no): ");
                 string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
 
@@ -358,8 +355,12 @@ namespace BundaHubManager.UI
 
                     properties.Add(ItemProperties.FREEZER);
                 }
-                ItemModel updatedItem = new ItemModel(newName, newPrice, newQuantity, properties.ToArray());
-                
+                selectedItem.Name = newName;
+                selectedItem.Price = newPrice;
+                selectedItem.Quantity = newQuantity;
+                selectedItem.Properties = properties.ToArray();
+                Console.WriteLine(" ");
+                Console.WriteLine("Item Updated Succesfully");
             }
             else if(choice == "remove"){
 
