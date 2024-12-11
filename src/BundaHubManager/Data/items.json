@@ -1,3 +1,14 @@
-﻿[
-
+[
+  {
+    "GetProperties": [
+      "FREEZER"
+    ],
+    "Name": "cd",
+    "Price": 1,
+    "Quantity": 1,
+    "TotalPrice": 1,
+    "Properties": [
+      0
+    ]
+  }
 ]
