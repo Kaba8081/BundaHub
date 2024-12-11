@@ -5,7 +5,7 @@ namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
-        private ItemModel[] _inventory = new ItemModel[] { }; 
+        private IList<ItemModel> _inventory = new List<ItemModel>(); 
         private List<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
@@ -50,7 +50,7 @@ namespace BundaHubManager.Services
             }
         }
 
-        public ItemModel[] GetInventory()
+        public IList<ItemModel> GetInventory()
         {
             // TODO: Account for reserved quantities
 
@@ -90,6 +90,34 @@ namespace BundaHubManager.Services
             
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
+        }
+
+        public (bool, string) RemoveAt(int selection)
+        {
+            try
+            {
+                if (selection < 0 || selection >= _inventory.Length)
+                {
+                    return (false, "Invalid index.");
+                }
+
+                // Create a new array without the item at the specified index
+                var newInventory = new ItemModel[_inventory.Length - 1];
+
+                // Copy elements before the index
+                Array.Copy(_inventory, 0, newInventory, 0, selection);
+
+                // Copy elements after the index
+                Array.Copy(_inventory, selection + 1, newInventory, selection, _inventory.Length - selection - 1);
+
+                _inventory = newInventory;
+
+                return (true, "Item removed successfully.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error removing item: {ex.Message}");
+            }
         }
 
     }

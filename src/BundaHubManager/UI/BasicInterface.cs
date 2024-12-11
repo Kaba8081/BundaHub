@@ -3,6 +3,7 @@ using BundaHubManager.Services.Interfaces;
 using BundaHubManager.UI.Interfaces;
 using Domain.Entites;
 using System.Data;
+using System.ComponentModel.Design;
 
 namespace BundaHubManager.UI
 {
@@ -373,10 +374,8 @@ namespace BundaHubManager.UI
                     Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
                     return;
                 }
-
-
-                var itemToRemove = inventory[selection - 1];
-                //inventory.Remove(itemToRemove);
+                inventory.RemoveAt(selection - 1);
+                
 
             }
             else
