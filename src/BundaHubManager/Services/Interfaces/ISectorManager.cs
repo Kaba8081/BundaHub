@@ -4,7 +4,7 @@ namespace BundaHubManager.Services.Interfaces
 {
     public interface ISectorManager
     {
-        SectorModel[] GetSectors(Dictionary<string, object>? parameters = null);
+        IList<SectorModel> GetSectors(Dictionary<string, object>? parameters = null);
         SectorModel? GetSector(int sectorId);
         (bool, string) AddSector(SectorModel newSector);
         (bool, string) AddSubSector(int parentSectorId, int capacity);

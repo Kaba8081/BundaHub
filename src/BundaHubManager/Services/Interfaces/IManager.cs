@@ -5,8 +5,8 @@ namespace BundaHubManager.Services.Interfaces
     public interface IManager
     {
         ItemModel[] GetInventory();
-        SectorModel[] GetSectors(string[]? parameters = null);
-        (List<ReservationModel>, Dictionary<string, int>) GetReservations();
+        IList<SectorModel> GetSectors(Dictionary<string, object>? parameters = null);
+        List<ReservationModel> GetReservations();
         (bool, string) AddItem(ItemModel newItem);
         (bool, string) AddReservation(ReservationModel newReservation);
     }

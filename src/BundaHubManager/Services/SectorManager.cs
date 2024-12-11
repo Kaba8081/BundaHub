@@ -1,28 +1,24 @@
 using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 
-using System.Linq;
-using Domain.Entites;
-
 namespace BundaHubManager.Services
 {
     public class SectorManager: ISectorManager
     {
-        SectorModel[] _sectors = new SectorModel[] { };
+        IList<SectorModel> _sectors = new List<SectorModel> { };
 
-        private SectorModel[] _filterSectors(SectorModel[] filteredSectors, string paramType, object filters) 
+        private IList<SectorModel> _filterSectors(IList<SectorModel> filteredSectors, string paramType, object filters) 
         {
             switch (paramType)
             {
-                case "parameters":;
+                case "parameters":
                     filteredSectors = filteredSectors.Where(sector => sector.GetProperties.Contains(filters.ToString())).ToArray();
                     break;
             }
 
             return filteredSectors;
         }
-
-        public SectorModel[] GetSectors(Dictionary<string, object>? parameters)
+        public IList<SectorModel> GetSectors(Dictionary<string, object>? parameters)
         {
             var filteredSectors = _sectors;
 
@@ -36,7 +32,6 @@ namespace BundaHubManager.Services
 
             return filteredSectors;
         }
-
         public SectorModel? GetSector(int sectorId)
         {
             return _sectors.FirstOrDefault(sector => sector.Id == sectorId);
@@ -63,7 +58,6 @@ namespace BundaHubManager.Services
             parentSector.AddSubSector(capacity);
             return (true, "Subsector added successfully.");
         }
-
         public (bool, string) UpdateSector(SectorModel updatedSector)
         {
             // TODO: Validate updatedSector
@@ -76,7 +70,6 @@ namespace BundaHubManager.Services
 
             return (true, "Sector updated successfully.");
         }
-
         public (bool, string) DeleteSector(string sectorId)
         {
             var sector = GetSector(int.Parse(sectorId));

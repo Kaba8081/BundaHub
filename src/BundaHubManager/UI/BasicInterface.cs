@@ -248,7 +248,19 @@ namespace BundaHubManager.UI
         public void AddReservation()
         {
             var inventory = _manager.GetInventory();
-            var (reservations, reservedQuantities) = _manager.GetReservations();
+            var reservations = _manager.GetReservations();
+            var reservedQuantities = new Dictionary<string, int>();
+            foreach (var reservation in reservations)
+            {
+                if (reservedQuantities.ContainsKey(reservation.ItemName))
+                {
+                    reservedQuantities[reservation.ItemName] += reservation.Quantity;
+                }
+                else
+                {
+                    reservedQuantities[reservation.ItemName] = reservation.Quantity;
+                }
+            }
 
             Console.Write("Enter item name to reserve: ");
             string itemName = Console.ReadLine();
@@ -294,7 +306,7 @@ namespace BundaHubManager.UI
 
         public void ViewReservations()
         {
-            var (reservations, _) = _manager.GetReservations();
+            var reservations = _manager.GetReservations();
 
             Console.WriteLine("Current Reservations:");
             foreach (var reservation in reservations)
