@@ -11,5 +11,6 @@ namespace BundaHubManager.Services.Interfaces
         (bool, string) AddSubSector(SectorModel parentSector, int capacity);
         (bool, string) UpdateSector(SectorModel updatedSector);
         (bool, string) DeleteSector(string sectorId);
+        ItemModel[] GetInventory(int? sectorId);
     }
 }

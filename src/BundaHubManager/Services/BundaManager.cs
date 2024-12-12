@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using BundaHubManager.Services.Interfaces;
+using Domain.Entites;
 
 namespace BundaHubManager.Services
 {
@@ -12,24 +13,33 @@ namespace BundaHubManager.Services
         public BundaManager()
         {
             _sectorManager = new SectorManager();
-            _sectorManager.AddSector(new SectorModel(1, "Food storage", 100));
-            _sectorManager.AddSubSector(1, 50);
-            _sectorManager.AddSubSector(1, 50);
+            _sectorManager.AddSector(new SectorModel(1, "Main storage", 1));
+            _sectorManager.AddSubSector(1, 1000);
+            _sectorManager.AddSubSector(1, 2000);
+            _sectorManager.AddSubSector(1, 500);
 
-            _sectorManager.AddSector(new SectorModel(2, "Electronics storage", 300));
-            _sectorManager.AddSubSector(2, 50);
-            _sectorManager.AddSubSector(2, 50);
-
-
-           _sectorManager.GetSectors().First().Inventory = new ItemModel[]
+            // Add some items to the inventory
+            _sectorManager.GetSectors().First().SubSectors.First().Inventory = new ItemModel[]
             {
                 new ItemModel("Laptop", 1500, 10, []),
                 new ItemModel("Chair", 150, 200, []),
                 new ItemModel("Pen", 5, 3000, []),
-                new ItemModel("Mug", 25, 130, [])
+                new ItemModel("Mug", 25, 130, [ItemProperties.FRAGILE])
             };
 
-            _SortInventory("name", true);
+            _sectorManager.AddSector(new SectorModel(2, "Food storage", 1, [ItemProperties.FREEZER]));
+            _sectorManager.AddSubSector(2, 5000);
+            _sectorManager.AddSubSector(2, 250);
+            _sectorManager.GetSector(2).SubSectors.First().Inventory = new ItemModel[]
+            {
+                new ItemModel("Apple", 25, 100, [ItemProperties.FREEZER]),
+                new ItemModel("Banana", 50, 200, [ItemProperties.FREEZER]),
+                new ItemModel("Orange", 100, 150, [ItemProperties.FREEZER]),
+                new ItemModel("Pineapple", 10, 50, [ItemProperties.FREEZER])
+            };
+
+            _sectorManager.AddSector(new SectorModel(3, "Electronics storage", 2));
+            _sectorManager.AddSubSector(3, 6000);
         }
         
         private static IList<ItemModel> _MergeInventories(IList<IList<ItemModel>> inventories)
@@ -52,9 +62,10 @@ namespace BundaHubManager.Services
             }
             return fullInventory;
         }
-        private void _SortInventory(string sortBy, bool ascending = true)
+        private IList<ItemModel> _SortInventory(string sortBy, bool ascending = true)
         {
-            var _inventory = this.GetInventory();
+            var _inventory = GetInventory();
+
             switch (sortBy)
             {
             case "name":
@@ -72,19 +83,19 @@ namespace BundaHubManager.Services
             default:
                 throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
             }
+
+            return _inventory;
         }
         public IList<ItemModel> GetInventory()
         {
             // TODO: Account for reserved quantities
+            // TODO: Add a parameter for specific sorting
 
             IList<IList<ItemModel>> _sector_inventories = new List<IList<ItemModel>>();
 
             foreach (var sector in _sectorManager.GetSectors())
             {
-                foreach (var subSector in sector.SubSectors)
-                {
-                    _sector_inventories.Add(subSector.Inventory);
-                }
+                _sector_inventories.Add(sector.Inventory);
             }
             var newInv = _MergeInventories(_sector_inventories);
             return newInv;
@@ -94,37 +105,38 @@ namespace BundaHubManager.Services
             if (parameters == null) return _sectorManager.GetSectors();
             return _sectorManager.GetSectors(parameters);
         }
-        public (bool, string) AddItem(ItemModel newItem, int? sectorId=null, int? subSectorId = null)
+        public (bool, string) AddItem(ItemModel newItem)
         {
-            // TODO: Implement sector and subsector filtering
-
             var _subSectors = _sectorManager.GetSectors().SelectMany(x => x.SubSectors).ToList();
-            // Add the item to any sector/subsector if no sectorId is provided
-            var existingSubSector = _subSectors.FirstOrDefault(
-                subSector => 
-                    subSector.Inventory.Any(
-                        item => item.Name.Equals(
-                            newItem.Name, StringComparison.OrdinalIgnoreCase)
-                    ) 
-                    && subSector.Capacity >= subSector.Inventory.Length + newItem.Quantity
-            );
-            // if the item already extists in the inventory, add the quantity
-            if (existingSubSector != null)
+            var _properties = newItem.Properties;
+
+            // Can be done better
+
+            // Filter subsectors by properties
+            _subSectors = _subSectors.Where(x => _properties.All(p => _sectorManager.GetSector(x.ParentId)?.Properties.Contains(p) == true)).ToList();
+            // Filter subsectors by capacity
+            _subSectors = _subSectors.Where(x => x.Capacity >= newItem.Quantity).ToList();
+            // Sort subsectors by capacity
+            _subSectors = _subSectors.OrderBy(x => x.Capacity).ToList();
+
+            if (_subSectors.Any())
             {
-                existingSubSector.AddItem(newItem);
+                _subSectors.First().AddItem(newItem);
                 return (true, "Item added successfully.");
             }
 
-            // otherwise find any subsector with available space
-            foreach (var subSector in _subSectors)
-            {
-                if (subSector.Capacity >= subSector.Inventory.Length + 1)
-                {
-                    subSector.AddItem(newItem);
-                    return (true, "Item added successfully.");
-                }
-            }
+            return (false, "No available space in any sector.");
+        }
+        public (bool, string) AddItem(ItemModel newItem, int sectorId)
+        {
+            throw new NotImplementedException();
 
+            return (false, "No available space in any sector.");
+        }
+        public (bool, string) AddItem(ItemModel newItem, int sectorId, int subSectorId)
+        {
+            throw new NotImplementedException();
+            
             return (false, "No available space in any sector.");
         }
         public IList<ReservationModel> GetReservations()
@@ -143,6 +155,5 @@ namespace BundaHubManager.Services
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
         }
-
     }
 }

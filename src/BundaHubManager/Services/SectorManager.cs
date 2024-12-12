@@ -80,5 +80,15 @@ namespace BundaHubManager.Services
 
             return (true, "Sector deleted successfully.");
         }
+
+        public ItemModel[] GetInventory(int? sectorId)
+        {
+            if (sectorId != null){
+                var sector = GetSector(sectorId.Value);
+                if (sector == null) return new ItemModel[] { };
+                return sector.Inventory;
+            }
+            return _sectors.SelectMany(sector => sector.Inventory).ToArray();
+        }
     }
 }
