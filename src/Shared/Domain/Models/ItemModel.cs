@@ -7,7 +7,7 @@ namespace Domain.Models
         public ItemModel(string name) : this(name, 0, 1, [])
         {
         }
-        public ItemModel(string name, decimal price) : this(name, price, 1, [])
+        public ItemModel(string name, decimal price, decimal v) : this(name, price, 1, [])
         {
         }
         public ItemModel(string name, decimal price, int quantity, ItemProperties[] properties)
