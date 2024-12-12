@@ -4,11 +4,10 @@ namespace BundaHubManager.Services.Interfaces
 {
     public interface IManager
     {
-        public List<ItemModel> GetInventory();
+        public IList<ItemModel> GetInventory();
         IList<SectorModel> GetSectors(Dictionary<string, object>? parameters = null);
-        List<ReservationModel> GetReservations();
-        (bool, string) AddItem(ItemModel newItem);
+        IList<ReservationModel> GetReservations();
+        (bool, string) AddItem(ItemModel newItem, int? sectorId=null, int? subSectorId = null);
         (bool, string) AddReservation(ReservationModel newReservation);
-        (bool, string) RemoveAt(int selection);
     }
 }

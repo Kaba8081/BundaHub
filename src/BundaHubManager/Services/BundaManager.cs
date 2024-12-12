@@ -5,9 +5,8 @@ namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
-        private ISectorManager _sectorManager;
-        private IList<ItemModel> _inventory = new List<ItemModel>(); 
-        private List<ReservationModel> _reservations = new List<ReservationModel>();
+        private ISectorManager _sectorManager; 
+        private IList<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
@@ -22,7 +21,7 @@ namespace BundaHubManager.Services
             _sectorManager.AddSubSector(2, 50);
 
 
-            _inventory = new ItemModel[]
+           _sectorManager.GetSectors().First().Inventory = new ItemModel[]
             {
                 new ItemModel("Laptop", 1500, 10, []),
                 new ItemModel("Chair", 150, 200, []),
@@ -33,61 +32,102 @@ namespace BundaHubManager.Services
             _SortInventory("name", true);
         }
         
+        private static IList<ItemModel> _MergeInventories(IList<IList<ItemModel>> inventories)
+        {
+            IList<ItemModel> fullInventory = new List<ItemModel>();
+
+            foreach (var inventory in inventories)
+            {
+                foreach (var item in inventory)
+                {
+                    // if the item already exists in the full inventory, add the quantities
+                    if (fullInventory.Any(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var existingItem = fullInventory.First(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+                        existingItem.Quantity += item.Quantity;
+                    }
+                    // else add the new item to the list
+                    else fullInventory.Add(item);
+                }
+            }
+            return fullInventory;
+        }
         private void _SortInventory(string sortBy, bool ascending = true)
         {
+            var _inventory = this.GetInventory();
             switch (sortBy)
             {
-                case "name":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Name.CompareTo(y.Name));
-                    else Array.Sort(_inventory, (x, y) => y.Name.CompareTo(x.Name));
-
-                    break;
-                case "price":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Price.CompareTo(y.Price));
-                    else Array.Sort(_inventory, (x, y) => y.Price.CompareTo(x.Price));
-
-                    break;
-                case "quantity":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Quantity.CompareTo(y.Quantity));
-                    else Array.Sort(_inventory, (x, y) => y.Quantity.CompareTo(x.Quantity));
-
-                    break;
-                default:
-                    throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
+            case "name":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Name).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Name).ToList();
+                break;
+            case "price":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Price).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Price).ToList();
+                break;
+            case "quantity":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Quantity).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Quantity).ToList();
+                break;
+            default:
+                throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
             }
         }
         public IList<ItemModel> GetInventory()
         {
             // TODO: Account for reserved quantities
 
-            return _inventory;
+            IList<IList<ItemModel>> _sector_inventories = new List<IList<ItemModel>>();
+
+            foreach (var sector in _sectorManager.GetSectors())
+            {
+                foreach (var subSector in sector.SubSectors)
+                {
+                    _sector_inventories.Add(subSector.Inventory);
+                }
+            }
+            var newInv = _MergeInventories(_sector_inventories);
+            return newInv;
         }
         public IList<SectorModel> GetSectors(Dictionary<string, object>? parameters)
         {
             if (parameters == null) return _sectorManager.GetSectors();
             return _sectorManager.GetSectors(parameters);
         }
-        public (bool, string) AddItem(ItemModel newItem)
+        public (bool, string) AddItem(ItemModel newItem, int? sectorId=null, int? subSectorId = null)
         {
-            foreach (var item in _inventory)
+            // TODO: Implement sector and subsector filtering
+
+            var _subSectors = _sectorManager.GetSectors().SelectMany(x => x.SubSectors).ToList();
+            // Add the item to any sector/subsector if no sectorId is provided
+            var existingSubSector = _subSectors.FirstOrDefault(
+                subSector => 
+                    subSector.Inventory.Any(
+                        item => item.Name.Equals(
+                            newItem.Name, StringComparison.OrdinalIgnoreCase)
+                    ) 
+                    && subSector.Capacity >= subSector.Inventory.Length + newItem.Quantity
+            );
+            // if the item already extists in the inventory, add the quantity
+            if (existingSubSector != null)
             {
-                if (item.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase))
+                existingSubSector.AddItem(newItem);
+                return (true, "Item added successfully.");
+            }
+
+            // otherwise find any subsector with available space
+            foreach (var subSector in _subSectors)
+            {
+                if (subSector.Capacity >= subSector.Inventory.Length + 1)
                 {
-                    return (false, "Item with the same name already exists in the inventory.");
+                    subSector.AddItem(newItem);
+                    return (true, "Item added successfully.");
                 }
             }
 
-            Array.Resize(ref _inventory, _inventory.Length + 1);
-            _inventory[^1] = newItem;
-
-            _SortInventory("name", true);
-
-            return (true, "Item added successfully.");
+            return (false, "No available space in any sector.");
         }
-        public List<ReservationModel> GetReservations()
+        public IList<ReservationModel> GetReservations()
         {
             // TODO: Filter only reservations that are not expired
             return _reservations;
@@ -102,34 +142,6 @@ namespace BundaHubManager.Services
             
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
-        }
-
-        public (bool, string) RemoveAt(int selection)
-        {
-            try
-            {
-                if (selection < 0 || selection >= _inventory.Length)
-                {
-                    return (false, "Invalid index.");
-                }
-
-                // Create a new array without the item at the specified index
-                var newInventory = new ItemModel[_inventory.Length - 1];
-
-                // Copy elements before the index
-                Array.Copy(_inventory, 0, newInventory, 0, selection);
-
-                // Copy elements after the index
-                Array.Copy(_inventory, selection + 1, newInventory, selection, _inventory.Length - selection - 1);
-
-                _inventory = newInventory;
-
-                return (true, "Item removed successfully.");
-            }
-            catch (Exception ex)
-            {
-                return (false, $"Error removing item: {ex.Message}");
-            }
         }
 
     }

@@ -92,6 +92,12 @@ namespace BundaHubManager.UI
         public void ViewInventory()
         {
             var inventory = _manager.GetInventory();
+            
+            if (inventory.Count == 0)
+            {
+                Console.WriteLine("No items in inventory.");
+                return;
+            }
 
             int[] colSizes = {
                 inventory.Max(i => i.Name.Length),
