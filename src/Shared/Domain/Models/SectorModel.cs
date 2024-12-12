@@ -70,5 +70,17 @@ namespace Domain.Models
             Capacity = capacity;
         }
         public string Label { get => $"{ParentId}{Identifier}"; }
+
+        public void AddItem(ItemModel item)
+        {
+            if (Inventory.Any(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                Inventory.First(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)).Quantity += item.Quantity;
+            }
+            else
+            {
+                Inventory = Inventory.Append(item).ToArray();
+            }        
+        }
     }
 }

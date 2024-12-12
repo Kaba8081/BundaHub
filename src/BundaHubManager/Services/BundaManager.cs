@@ -5,8 +5,7 @@ namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
-        private ISectorManager _sectorManager;
-        private IList<ItemModel> _inventory = new List<ItemModel>(); 
+        private ISectorManager _sectorManager; 
         private IList<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
@@ -22,7 +21,7 @@ namespace BundaHubManager.Services
             _sectorManager.AddSubSector(2, 50);
 
 
-            _inventory = new ItemModel[]
+           _sectorManager.GetSectors().First().Inventory = new ItemModel[]
             {
                 new ItemModel("Laptop", 1500, 10, []),
                 new ItemModel("Chair", 150, 200, []),
@@ -33,8 +32,29 @@ namespace BundaHubManager.Services
             _SortInventory("name", true);
         }
         
+        private static IList<ItemModel> _MergeInventories(IList<IList<ItemModel>> inventories)
+        {
+            IList<ItemModel> fullInventory = new List<ItemModel>();
+
+            foreach (var inventory in inventories)
+            {
+                foreach (var item in inventory)
+                {
+                    // if the item already exists in the full inventory, add the quantities
+                    if (fullInventory.Any(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var existingItem = fullInventory.First(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+                        existingItem.Quantity += item.Quantity;
+                    }
+                    // else add the new item to the list
+                    else fullInventory.Add(item);
+                }
+            }
+            return fullInventory;
+        }
         private void _SortInventory(string sortBy, bool ascending = true)
         {
+            var _inventory = this.GetInventory();
             switch (sortBy)
             {
             case "name":
@@ -57,28 +77,55 @@ namespace BundaHubManager.Services
         {
             // TODO: Account for reserved quantities
 
-            return _inventory;
+            IList<IList<ItemModel>> _sector_inventories = new List<IList<ItemModel>>();
+
+            foreach (var sector in _sectorManager.GetSectors())
+            {
+                foreach (var subSector in sector.SubSectors)
+                {
+                    _sector_inventories.Add(subSector.Inventory);
+                }
+            }
+            var newInv = _MergeInventories(_sector_inventories);
+            return newInv;
         }
         public IList<SectorModel> GetSectors(Dictionary<string, object>? parameters)
         {
             if (parameters == null) return _sectorManager.GetSectors();
             return _sectorManager.GetSectors(parameters);
         }
-        public (bool, string) AddItem(ItemModel newItem)
+        public (bool, string) AddItem(ItemModel newItem, int? sectorId=null, int? subSectorId = null)
         {
-            foreach (var item in _inventory)
+            // TODO: Implement sector and subsector filtering
+
+            var _subSectors = _sectorManager.GetSectors().SelectMany(x => x.SubSectors).ToList();
+            // Add the item to any sector/subsector if no sectorId is provided
+            var existingSubSector = _subSectors.FirstOrDefault(
+                subSector => 
+                    subSector.Inventory.Any(
+                        item => item.Name.Equals(
+                            newItem.Name, StringComparison.OrdinalIgnoreCase)
+                    ) 
+                    && subSector.Capacity >= subSector.Inventory.Length + newItem.Quantity
+            );
+            // if the item already extists in the inventory, add the quantity
+            if (existingSubSector != null)
             {
-                if (item.Name.Equals(newItem.Name, StringComparison.OrdinalIgnoreCase))
+                existingSubSector.AddItem(newItem);
+                return (true, "Item added successfully.");
+            }
+
+            // otherwise find any subsector with available space
+            foreach (var subSector in _subSectors)
+            {
+                if (subSector.Capacity >= subSector.Inventory.Length + 1)
                 {
-                    return (false, "Item with the same name already exists in the inventory.");
+                    subSector.AddItem(newItem);
+                    return (true, "Item added successfully.");
                 }
             }
 
-            _inventory.Add(newItem);
-
-            _SortInventory("name", true);
-
-            return (true, "Item added successfully.");
+            return (false, "No available space in any sector.");
         }
         public IList<ReservationModel> GetReservations()
         {
