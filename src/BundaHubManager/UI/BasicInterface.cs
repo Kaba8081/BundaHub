@@ -18,6 +18,7 @@ namespace BundaHubManager.UI
             "Make reservation",
             "View reservations",
             "Update",
+            "View sectors",
             "Exit"
         };
 
@@ -72,6 +73,22 @@ namespace BundaHubManager.UI
             Console.WriteLine(" ");
         }
 
+        private void ViewSectors()
+        {
+            var sectors = _manager.GetSectors();
+            foreach (SectorModel sector in sectors)
+            {
+                Console.WriteLine($"Sector: {sector.Label}, Capacity: {sector.GetTotalCapacity}");
+                Console.WriteLine($"Description: {sector.Description}");
+                Console.WriteLine($"Properties: {String.Join(", ", sector.GetProperties)}");
+                Console.WriteLine(new string('-', 20));
+                foreach (SubSectorModel subSector in sector.SubSectors)
+                {   
+                    Console.WriteLine($"Subsector: {subSector.Label}, Capacity: {subSector.Capacity}");
+                }
+                Console.WriteLine(new string('-', 20));
+            }
+        }
         public void ViewInventory()
         {
             var inventory = _manager.GetInventory();
@@ -234,7 +251,19 @@ namespace BundaHubManager.UI
         public void AddReservation()
         {
             var inventory = _manager.GetInventory();
-            var (reservations, reservedQuantities) = _manager.GetReservations();
+            var reservations = _manager.GetReservations();
+            var reservedQuantities = new Dictionary<string, int>();
+            foreach (var reservation in reservations)
+            {
+                if (reservedQuantities.ContainsKey(reservation.ItemName))
+                {
+                    reservedQuantities[reservation.ItemName] += reservation.Quantity;
+                }
+                else
+                {
+                    reservedQuantities[reservation.ItemName] = reservation.Quantity;
+                }
+            }
 
             Console.Write("Enter item name to reserve: ");
             string itemName = Console.ReadLine();
@@ -280,7 +309,7 @@ namespace BundaHubManager.UI
 
         public void ViewReservations()
         {
-            var (reservations, _) = _manager.GetReservations();
+            var reservations = _manager.GetReservations();
 
             Console.WriteLine("Current Reservations:");
             foreach (var reservation in reservations)
@@ -418,8 +447,11 @@ namespace BundaHubManager.UI
                         break;
                     case 6:
                         Update();
-                    break;
+                        break;
                     case 7:
+                        ViewSectors();
+                        break;
+                    case 8:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }

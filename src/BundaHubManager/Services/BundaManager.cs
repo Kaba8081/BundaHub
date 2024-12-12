@@ -5,12 +5,22 @@ namespace BundaHubManager.Services
 {
     public class BundaManager: IManager
     {
+        private ISectorManager _sectorManager;
         private IList<ItemModel> _inventory = new List<ItemModel>(); 
         private List<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
         {
+            _sectorManager = new SectorManager();
+            _sectorManager.AddSector(new SectorModel(1, "Food storage", 100));
+            _sectorManager.AddSubSector(1, 50);
+            _sectorManager.AddSubSector(1, 50);
+
+            _sectorManager.AddSector(new SectorModel(2, "Electronics storage", 300));
+            _sectorManager.AddSubSector(2, 50);
+            _sectorManager.AddSubSector(2, 50);
+
 
             _inventory = new ItemModel[]
             {
@@ -49,14 +59,17 @@ namespace BundaHubManager.Services
                     throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
             }
         }
-
         public IList<ItemModel> GetInventory()
         {
             // TODO: Account for reserved quantities
 
             return _inventory;
         }
-
+        public IList<SectorModel> GetSectors(Dictionary<string, object>? parameters)
+        {
+            if (parameters == null) return _sectorManager.GetSectors();
+            return _sectorManager.GetSectors(parameters);
+        }
         public (bool, string) AddItem(ItemModel newItem)
         {
             foreach (var item in _inventory)
@@ -74,12 +87,11 @@ namespace BundaHubManager.Services
 
             return (true, "Item added successfully.");
         }
-
-        public (List<ReservationModel>, Dictionary<string, int>) GetReservations()
+        public List<ReservationModel> GetReservations()
         {
-            return (_reservations, _reservedQuantities);
+            // TODO: Filter only reservations that are not expired
+            return _reservations;
         }
-
         public (bool, string) AddReservation(ReservationModel newReservation)
         {
             // TODO: Check reservation validity
