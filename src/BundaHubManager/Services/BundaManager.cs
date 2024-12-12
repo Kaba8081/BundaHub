@@ -7,7 +7,7 @@ namespace BundaHubManager.Services
     {
         private ISectorManager _sectorManager;
         private IList<ItemModel> _inventory = new List<ItemModel>(); 
-        private List<ReservationModel> _reservations = new List<ReservationModel>();
+        private IList<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
 
         public BundaManager()
@@ -37,26 +37,20 @@ namespace BundaHubManager.Services
         {
             switch (sortBy)
             {
-                case "name":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Name.CompareTo(y.Name));
-                    else Array.Sort(_inventory, (x, y) => y.Name.CompareTo(x.Name));
-
-                    break;
-                case "price":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Price.CompareTo(y.Price));
-                    else Array.Sort(_inventory, (x, y) => y.Price.CompareTo(x.Price));
-
-                    break;
-                case "quantity":
-                    
-                    if (ascending) Array.Sort(_inventory, (x, y) => x.Quantity.CompareTo(y.Quantity));
-                    else Array.Sort(_inventory, (x, y) => y.Quantity.CompareTo(x.Quantity));
-
-                    break;
-                default:
-                    throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
+            case "name":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Name).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Name).ToList();
+                break;
+            case "price":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Price).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Price).ToList();
+                break;
+            case "quantity":
+                if (ascending) _inventory = _inventory.OrderBy(x => x.Quantity).ToList();
+                else _inventory = _inventory.OrderByDescending(x => x.Quantity).ToList();
+                break;
+            default:
+                throw new ArgumentException("Invalid sortBy value. Allowed values are: name, price, quantity.");
             }
         }
         public IList<ItemModel> GetInventory()
@@ -80,14 +74,13 @@ namespace BundaHubManager.Services
                 }
             }
 
-            Array.Resize(ref _inventory, _inventory.Length + 1);
-            _inventory[^1] = newItem;
+            _inventory.Add(newItem);
 
             _SortInventory("name", true);
 
             return (true, "Item added successfully.");
         }
-        public List<ReservationModel> GetReservations()
+        public IList<ReservationModel> GetReservations()
         {
             // TODO: Filter only reservations that are not expired
             return _reservations;
@@ -102,34 +95,6 @@ namespace BundaHubManager.Services
             
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
-        }
-
-        public (bool, string) RemoveAt(int selection)
-        {
-            try
-            {
-                if (selection < 0 || selection >= _inventory.Length)
-                {
-                    return (false, "Invalid index.");
-                }
-
-                // Create a new array without the item at the specified index
-                var newInventory = new ItemModel[_inventory.Length - 1];
-
-                // Copy elements before the index
-                Array.Copy(_inventory, 0, newInventory, 0, selection);
-
-                // Copy elements after the index
-                Array.Copy(_inventory, selection + 1, newInventory, selection, _inventory.Length - selection - 1);
-
-                _inventory = newInventory;
-
-                return (true, "Item removed successfully.");
-            }
-            catch (Exception ex)
-            {
-                return (false, $"Error removing item: {ex.Message}");
-            }
         }
 
     }
