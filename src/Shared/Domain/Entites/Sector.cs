@@ -7,7 +7,6 @@
         public string Description { get; set; } = "No description provided";
         public int Level { get; set; }
         public SubSector[] SubSectors { get; set; } = new SubSector[] { };
-        public Item[] Inventory { get; set; } = new Item[] { };
         public ItemProperties[] Properties { get; set;  } = new ItemProperties[] { };
 
     }

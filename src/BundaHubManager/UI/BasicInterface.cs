@@ -78,7 +78,7 @@ namespace BundaHubManager.UI
             var sectors = _manager.GetSectors();
             foreach (SectorModel sector in sectors)
             {
-                Console.WriteLine($"Sector: {sector.Label}, Capacity: {sector.GetTotalCapacity}");
+                Console.WriteLine($"Sector: {sector.Label}, Capacity: {sector.GetTotalCapacity}, Free Space: {sector.GetFreeSpace}");
                 Console.WriteLine($"Description: {sector.Description}");
                 Console.WriteLine($"Properties: {String.Join(", ", sector.GetProperties)}");
                 Console.WriteLine(new string('-', 20));

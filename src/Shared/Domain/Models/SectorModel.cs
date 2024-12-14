@@ -5,7 +5,10 @@ namespace Domain.Models
     public class SectorModel: Sector
     {
         public new SubSectorModel[] SubSectors { get; set; } = new SubSectorModel[] { };
-        public new ItemModel[] Inventory { get; set; } = new ItemModel[] { };
+        public ItemModel[] Inventory
+        {
+            get => SubSectors.SelectMany(x => x.Inventory).ToArray();
+        }
 
         // TODO Add description to constructor
         public SectorModel(int id): this(id, "undefined") {}
@@ -20,6 +23,7 @@ namespace Domain.Models
         }
         public string Label { get => $"{Id} - {Name}"; }
         public int GetTotalCapacity { get => CalculateTotalCapacity(); }
+        public int GetFreeSpace { get => GetTotalCapacity - (int)SubSectors.Sum(x => x.Inventory.Sum(item => item.Quantity)); }
         public string[] GetProperties { get => GetSectorProperties(); }
         public void AddSubSector(int capacity, char identifier = ' ')
         {
