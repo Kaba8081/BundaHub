@@ -11,5 +11,6 @@ namespace BundaHubManager.Services.Interfaces
         (bool, string) AddItem(ItemModel newItem, int sectorId);
         (bool, string) AddItem(ItemModel newItem, int sectorId, int subSectorId);
         (bool, string) AddReservation(ReservationModel newReservation);
+        (bool, string) RemoveItem(ItemModel item);  
     }
 }

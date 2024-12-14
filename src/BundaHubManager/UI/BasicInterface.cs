@@ -323,20 +323,20 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
             }
         }
-        private void DisplayError(int ilosc,string message){
+        private void DisplayError(int ilosc,string error){
 
-            switch (message){
+            switch (error){
 
                 case "ilosc":
                     Console.WriteLine($"Invalid ammount, needs to be between 0 and {ilosc}");
                 break;
 
                 case " price":
-                    Console.WriteLine($"Invalid {message}, update cancelled");
+                    Console.WriteLine($"Invalid {error}, update cancelled");
                 break;
 
                 case "quantity":
-                    Console.WriteLine($"Invalid {message}, update cancelled");
+                    Console.WriteLine($"Invalid {error}, update cancelled");
                 break;
             }
         }
@@ -355,8 +355,8 @@ namespace BundaHubManager.UI
                
                 if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
                     
-                    string message = "ilosc";
-                    DisplayError(ilosc, message);
+                    string error = "ilosc";
+                    DisplayError(ilosc, error);
                     return;
                 }
                 
@@ -379,8 +379,8 @@ namespace BundaHubManager.UI
 
                     if (!decimal.TryParse(priceInput, out newPrice)){
 
-                        string message = "price";
-                        DisplayError(ilosc,message);
+                        string error = "price";
+                        DisplayError(ilosc,error);
                         return;
                     }
                 }
@@ -393,8 +393,8 @@ namespace BundaHubManager.UI
 
                     if (!int.TryParse(quantityInput, out newQuantity)){
 
-                        string message = "quantity";
-                        DisplayError(ilosc, message); 
+                        string error = "quantity";
+                        DisplayError(ilosc, error); 
                         return;
                     }
                 }
@@ -430,12 +430,12 @@ namespace BundaHubManager.UI
 
                 if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
 
-                    string message = "ilosc";
-                    DisplayError(ilosc, message);
+                    string error = "ilosc";
+                    DisplayError(ilosc, error);
                     return;
                 }
-
-                inventory.RemoveAt(selection - 1);
+                var itemToRemove = inventory[selection - 1];
+                (bool status, string message) = _manager.RemoveItem(itemToRemove);
             }
             else{
                 

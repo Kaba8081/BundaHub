@@ -90,5 +90,6 @@ namespace BundaHubManager.Services
             }
             return _sectors.SelectMany(sector => sector.Inventory).ToArray();
         }
+        
     }
 }
