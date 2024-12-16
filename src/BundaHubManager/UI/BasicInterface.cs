@@ -312,7 +312,7 @@ namespace BundaHubManager.UI
             var (status, message) = _manager.AddReservation(new ReservationModel(itemName, quantity));
             DisplayResult(status, message);
         }
-
+    
         public void ViewReservations()
         {
             var reservations = _manager.GetReservations();
@@ -323,9 +323,27 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
             }
         }
+        private void DisplayError(int ilosc,string error){
+
+            switch (error){
+
+                case "ilosc":
+                    Console.WriteLine($"Invalid ammount, needs to be between 0 and {ilosc}");
+                break;
+
+                case " price":
+                    Console.WriteLine($"Invalid {error}, update cancelled");
+                break;
+
+                case "quantity":
+                    Console.WriteLine($"Invalid {error}, update cancelled");
+                break;
+            }
+        }
         public void Update(){
 
             var inventory = _manager.GetInventory();
+            int ilosc = inventory.Count();
             ViewInventory();
 
             Console.WriteLine("What do you want to do with this invenntory ? : (update/remove)");
@@ -333,90 +351,95 @@ namespace BundaHubManager.UI
             
             if(choice == "update"){
 
-                int ilosc = inventory.Count();
-                Console.WriteLine(" ");
                 Console.Write("\nEnter the number of the item you want to update: ");
+               
                 if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
-
-                    Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
+                    
+                    string error = "ilosc";
+                    DisplayError(ilosc, error);
                     return;
                 }
-                Console.WriteLine(" ");
+                
                 var selectedItem = inventory[selection - 1];
                 Console.WriteLine($"\nUpdating {selectedItem.Name}:");
                 
-                Console.Write("Enter new name (press Enter to keep current): ");
+                Console.Write("\nEnter new name (press Enter to keep current): ");
                 string newName = Console.ReadLine();
+
                 if (string.IsNullOrWhiteSpace(newName)){
 
                     newName = selectedItem.Name;
                 }
-                Console.WriteLine(" ");
-                Console.Write("Enter new price (press Enter to keep current): ");
+                
+                Console.Write("\nEnter new price (press Enter to keep current): ");
                 string priceInput = Console.ReadLine();
                 decimal newPrice = selectedItem.Price;
-                if (!string.IsNullOrWhiteSpace(priceInput))
-                {
-                    if (!decimal.TryParse(priceInput, out newPrice))
-                    {
-                        Console.WriteLine("Invalid price. Update cancelled.");
+
+                if (!string.IsNullOrWhiteSpace(priceInput)){
+
+                    if (!decimal.TryParse(priceInput, out newPrice)){
+
+                        string error = "price";
+                        DisplayError(ilosc,error);
                         return;
                     }
                 }
-                Console.WriteLine(" ");
-                Console.Write("Enter new quantity (press Enter to keep current): ");
+                
+                Console.Write("\nEnter new quantity (press Enter to keep current): ");
                 string quantityInput = Console.ReadLine();
                 int newQuantity = (int)selectedItem.Quantity;  
-                if (!string.IsNullOrWhiteSpace(quantityInput))
-                {
-                    if (!int.TryParse(quantityInput, out newQuantity))
-                    {
-                        Console.WriteLine("Invalid quantity. Update cancelled.");
+
+                if (!string.IsNullOrWhiteSpace(quantityInput)){
+
+                    if (!int.TryParse(quantityInput, out newQuantity)){
+
+                        string error = "quantity";
+                        DisplayError(ilosc, error); 
                         return;
                     }
                 }
-                Console.WriteLine(" ");
+               
                 List<ItemProperties> properties = new List<ItemProperties>();
-                Console.Write("Is the item fragile? (yes/no): ");
+                Console.Write("\nIs the item fragile? (yes/no): ");
                 string fragileInput = Console.ReadLine()?.Trim().ToLower();
+
                 if (fragileInput == "yes"){
 
                     properties.Add(ItemProperties.FRAGILE);
                 }
-                Console.WriteLine(" ");
-                Console.Write("Should the item be cold stored? (yes/no): ");
+               
+                Console.Write("\nShould the item be cold stored? (yes/no): ");
                 string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
 
                 if (coldStoredInput == "yes"){
 
                     properties.Add(ItemProperties.FREEZER);
                 }
+
                 selectedItem.Name = newName;
                 selectedItem.Price = newPrice;
                 selectedItem.Quantity = newQuantity;
                 selectedItem.Properties = properties.ToArray();
-                Console.WriteLine(" ");
-                Console.WriteLine("Item Updated Succesfully");
+               
+                Console.WriteLine("\nItem Updated Succesfully");
             }
+
             else if(choice == "remove"){
 
-                int ilosc = inventory.Count();
-                Console.WriteLine(" ");
                 Console.Write("\nEnter the number of the item you want to remove: ");
-                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc)
-                {
 
-                    Console.WriteLine($"Invalid number, must be between 1 and {ilosc}");
+                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
+
+                    string error = "ilosc";
+                    DisplayError(ilosc, error);
                     return;
                 }
-                inventory.RemoveAt(selection - 1);
-                
-
+                var itemToRemove = inventory[selection - 1];
+                (bool status, string message) = _manager.RemoveItem(itemToRemove);
             }
-            else
-            { 
-
-                Console.WriteLine("Innvalid choice ");
+            else{
+                
+                Console.WriteLine("\nInnvalid choice ");
             }
         }
 

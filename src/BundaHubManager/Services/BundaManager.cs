@@ -155,5 +155,29 @@ namespace BundaHubManager.Services
             _reservations.Add(newReservation);
             return (true, "Reservation added successfully.");
         }
+
+
+        public (bool, string) RemoveItem(ItemModel item)
+        {
+            
+            var sectors = _sectorManager.GetSectors();
+
+            foreach (var sector in sectors)
+            {
+                foreach (var subSector in sector.SubSectors)
+                {
+                    
+                    var existingItem = subSector.Inventory.FirstOrDefault(x => x.Name.Equals(item.Name, StringComparison.OrdinalIgnoreCase));
+                    if (existingItem != null)
+                    {
+                        
+                        subSector.Inventory = subSector.Inventory.Where(x => x.Name != existingItem.Name).ToArray();
+                        return (true, "Item removed successfully.");
+                    }
+                }
+            }
+
+            return (false, "Item not found.");
+        }
     }
 }
