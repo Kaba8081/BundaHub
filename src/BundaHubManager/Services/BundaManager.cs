@@ -17,7 +17,6 @@ namespace BundaHubManager.Services
 
             // Initialize sectors and items
             InitializeSectors();
-            SaveDataToJson();
         }
 
         private void InitializeSectors()
@@ -48,6 +47,20 @@ namespace BundaHubManager.Services
 
             _sectorManager.AddSector(new SectorModel(3, "Electronics storage", 2));
             _sectorManager.AddSubSector(3, 6000);
+            LoadDataFromJson();
+        }
+
+        private void LoadDataFromJson()
+        {
+            // Load sectors from JSON file
+            var sectors = _jsonDataHandler.LoadData<List<SectorModel>>("sectors.json");
+            foreach (var sector in sectors)
+            {
+                _sectorManager.AddSector(sector);
+            }
+
+            // Load reservations from JSON file
+            _reservations = _jsonDataHandler.LoadData<List<ReservationModel>>("reservations.json");
         }
 
         private void SaveDataToJson()
@@ -138,6 +151,7 @@ namespace BundaHubManager.Services
             if (_subSectors.Any())
             {
                 _subSectors.First().AddItem(newItem);
+                SaveDataToJson();
                 return (true, "Item added successfully.");
             }
 
@@ -169,6 +183,7 @@ namespace BundaHubManager.Services
             
             
             _reservations.Add(newReservation);
+            SaveDataToJson();
             return (true, "Reservation added successfully.");
         }
 
@@ -188,6 +203,7 @@ namespace BundaHubManager.Services
                     {
                         
                         subSector.Inventory = subSector.Inventory.Where(x => x.Name != existingItem.Name).ToArray();
+                        SaveDataToJson();
                         return (true, "Item removed successfully.");
                     }
                 }

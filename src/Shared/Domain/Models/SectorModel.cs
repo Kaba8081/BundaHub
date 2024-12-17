@@ -11,6 +11,7 @@ namespace Domain.Models
         }
 
         // TODO Add description to constructor
+        public SectorModel() { }
         public SectorModel(int id): this(id, "undefined") {}
         public SectorModel(int id, string name): this(id, name, 0) {}
         public SectorModel(int id, string name, int level): this(id, name, level, new ItemProperties[] { }) {}
@@ -66,6 +67,7 @@ namespace Domain.Models
     }
     public class SubSectorModel: SubSector
     {
+        public SubSectorModel() { }
         public new ItemModel[] Inventory { get; set; } = new ItemModel[] { };
         public SubSectorModel (SectorModel parent, char identifier, int capacity) 
         {
