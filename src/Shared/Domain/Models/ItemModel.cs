@@ -4,6 +4,7 @@ namespace Domain.Models
 {
     public class ItemModel: Item
     {
+        public ItemModel() { }
         public ItemModel(string name) : this(name, 0, 1, [])
         {
         }

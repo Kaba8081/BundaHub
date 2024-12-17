@@ -9,16 +9,29 @@ namespace BundaHubManager.Services
         private ISectorManager _sectorManager; 
         private IList<ReservationModel> _reservations = new List<ReservationModel>();
         private Dictionary<string, int> _reservedQuantities = new Dictionary<string, int>();
-
+                private JsonDataHandler _jsonDataHandler;
         public BundaManager()
         {
             _sectorManager = new SectorManager();
-            _sectorManager.AddSector(new SectorModel(1, "Main storage", 1));
+            _jsonDataHandler = new JsonDataHandler();
+
+            // Initialize sectors and items
+            InitializeSectors();
+        }
+
+        private void InitializeSectors()
+        {
+            
+            
+            //Deafult data
+            //Delete before project presentation
+
+
+            /*_sectorManager.AddSector(new SectorModel(1, "Main storage", 1));
             _sectorManager.AddSubSector(1, 1000);
             _sectorManager.AddSubSector(1, 2000);
             _sectorManager.AddSubSector(1, 500);
 
-            // Add some items to the inventory
             _sectorManager.GetSectors().First().SubSectors.First().Inventory = new ItemModel[]
             {
                 new ItemModel("Laptop", 1500, 10, []),
@@ -40,8 +53,32 @@ namespace BundaHubManager.Services
 
             _sectorManager.AddSector(new SectorModel(3, "Electronics storage", 2));
             _sectorManager.AddSubSector(3, 6000);
+            */
+
+            LoadDataFromJson();
         }
-        
+
+        private void LoadDataFromJson()
+        {
+            // Load sectors from JSON file
+            var sectors = _jsonDataHandler.LoadData<List<SectorModel>>("sectors.json");
+            foreach (var sector in sectors)
+            {
+                _sectorManager.AddSector(sector);
+            }
+
+            // Load reservations from JSON file
+            _reservations = _jsonDataHandler.LoadData<List<ReservationModel>>("reservations.json");
+        }
+
+        private void SaveDataToJson()
+        {
+            var sectors = _sectorManager.GetSectors();
+            _jsonDataHandler.SaveData("sectors.json", sectors);
+
+            var reservations = GetReservations();
+            _jsonDataHandler.SaveData("reservations.json", reservations);
+        }
         private static IList<ItemModel> _MergeInventories(IList<IList<ItemModel>> inventories)
         {
             IList<ItemModel> fullInventory = new List<ItemModel>();
@@ -122,6 +159,7 @@ namespace BundaHubManager.Services
             if (_subSectors.Any())
             {
                 _subSectors.First().AddItem(newItem);
+                SaveDataToJson();
                 return (true, "Item added successfully.");
             }
 
@@ -153,6 +191,7 @@ namespace BundaHubManager.Services
             
             
             _reservations.Add(newReservation);
+            SaveDataToJson();
             return (true, "Reservation added successfully.");
         }
 
@@ -172,6 +211,7 @@ namespace BundaHubManager.Services
                     {
                         
                         subSector.Inventory = subSector.Inventory.Where(x => x.Name != existingItem.Name).ToArray();
+                        SaveDataToJson();
                         return (true, "Item removed successfully.");
                     }
                 }
