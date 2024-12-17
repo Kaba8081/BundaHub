@@ -1,7 +1,12 @@
 [
   {
-    "ItemName": "Kot",
+    "ItemName": "1",
     "Quantity": 1,
-    "ReservationDate": "2024-12-17T20:40:00.5527148+01:00"
+    "ReservationDate": "2024-12-17T21:36:26.9553277+01:00"
+  },
+  {
+    "ItemName": "2",
+    "Quantity": 2,
+    "ReservationDate": "2024-12-17T21:36:33.852932+01:00"
   }
 ]

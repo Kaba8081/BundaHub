@@ -15,13 +15,19 @@ namespace BundaHubManager.Services
             _sectorManager = new SectorManager();
             _jsonDataHandler = new JsonDataHandler();
 
-            
+            // Initialize sectors and items
             InitializeSectors();
         }
 
         private void InitializeSectors()
         {
-            _sectorManager.AddSector(new SectorModel(1, "Main storage", 1));
+            
+            
+            //Deafult data
+            //Delete before project presentation
+
+
+            /*_sectorManager.AddSector(new SectorModel(1, "Main storage", 1));
             _sectorManager.AddSubSector(1, 1000);
             _sectorManager.AddSubSector(1, 2000);
             _sectorManager.AddSubSector(1, 500);
@@ -47,6 +53,8 @@ namespace BundaHubManager.Services
 
             _sectorManager.AddSector(new SectorModel(3, "Electronics storage", 2));
             _sectorManager.AddSubSector(3, 6000);
+            */
+
             LoadDataFromJson();
         }
 
