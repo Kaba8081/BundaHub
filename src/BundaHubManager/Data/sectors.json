@@ -1,0 +1,262 @@
+[
+  {
+    "SubSectors": [
+      {
+        "Inventory": [
+          {
+            "GetProperties": [],
+            "Name": "Laptop",
+            "Price": 1500,
+            "Quantity": 10,
+            "TotalPrice": 15000,
+            "Properties": []
+          },
+          {
+            "GetProperties": [],
+            "Name": "Chair",
+            "Price": 150,
+            "Quantity": 200,
+            "TotalPrice": 30000,
+            "Properties": []
+          },
+          {
+            "GetProperties": [],
+            "Name": "Pen",
+            "Price": 5,
+            "Quantity": 3000,
+            "TotalPrice": 15000,
+            "Properties": []
+          },
+          {
+            "GetProperties": [
+              "FRAGILE"
+            ],
+            "Name": "Mug",
+            "Price": 25,
+            "Quantity": 130,
+            "TotalPrice": 3250,
+            "Properties": [
+              1
+            ]
+          }
+        ],
+        "Label": "1A",
+        "ParentId": 1,
+        "Identifier": "A",
+        "Capacity": 1000
+      },
+      {
+        "Inventory": [],
+        "Label": "1B",
+        "ParentId": 1,
+        "Identifier": "B",
+        "Capacity": 2000
+      },
+      {
+        "Inventory": [],
+        "Label": "1C",
+        "ParentId": 1,
+        "Identifier": "C",
+        "Capacity": 500
+      }
+    ],
+    "Inventory": [
+      {
+        "GetProperties": [],
+        "Name": "Laptop",
+        "Price": 1500,
+        "Quantity": 10,
+        "TotalPrice": 15000,
+        "Properties": []
+      },
+      {
+        "GetProperties": [],
+        "Name": "Chair",
+        "Price": 150,
+        "Quantity": 200,
+        "TotalPrice": 30000,
+        "Properties": []
+      },
+      {
+        "GetProperties": [],
+        "Name": "Pen",
+        "Price": 5,
+        "Quantity": 3000,
+        "TotalPrice": 15000,
+        "Properties": []
+      },
+      {
+        "GetProperties": [
+          "FRAGILE"
+        ],
+        "Name": "Mug",
+        "Price": 25,
+        "Quantity": 130,
+        "TotalPrice": 3250,
+        "Properties": [
+          1
+        ]
+      }
+    ],
+    "Label": "1 - Main storage",
+    "GetTotalCapacity": 3500,
+    "GetFreeSpace": 160,
+    "GetProperties": [],
+    "Id": 1,
+    "Name": "Main storage",
+    "Description": "No description provided",
+    "Level": 1,
+    "Properties": []
+  },
+  {
+    "SubSectors": [
+      {
+        "Inventory": [
+          {
+            "GetProperties": [
+              "FREEZER"
+            ],
+            "Name": "Apple",
+            "Price": 25,
+            "Quantity": 100,
+            "TotalPrice": 2500,
+            "Properties": [
+              0
+            ]
+          },
+          {
+            "GetProperties": [
+              "FREEZER"
+            ],
+            "Name": "Banana",
+            "Price": 50,
+            "Quantity": 200,
+            "TotalPrice": 10000,
+            "Properties": [
+              0
+            ]
+          },
+          {
+            "GetProperties": [
+              "FREEZER"
+            ],
+            "Name": "Orange",
+            "Price": 100,
+            "Quantity": 150,
+            "TotalPrice": 15000,
+            "Properties": [
+              0
+            ]
+          },
+          {
+            "GetProperties": [
+              "FREEZER"
+            ],
+            "Name": "Pineapple",
+            "Price": 10,
+            "Quantity": 50,
+            "TotalPrice": 500,
+            "Properties": [
+              0
+            ]
+          }
+        ],
+        "Label": "2A",
+        "ParentId": 2,
+        "Identifier": "A",
+        "Capacity": 5000
+      },
+      {
+        "Inventory": [],
+        "Label": "2B",
+        "ParentId": 2,
+        "Identifier": "B",
+        "Capacity": 250
+      }
+    ],
+    "Inventory": [
+      {
+        "GetProperties": [
+          "FREEZER"
+        ],
+        "Name": "Apple",
+        "Price": 25,
+        "Quantity": 100,
+        "TotalPrice": 2500,
+        "Properties": [
+          0
+        ]
+      },
+      {
+        "GetProperties": [
+          "FREEZER"
+        ],
+        "Name": "Banana",
+        "Price": 50,
+        "Quantity": 200,
+        "TotalPrice": 10000,
+        "Properties": [
+          0
+        ]
+      },
+      {
+        "GetProperties": [
+          "FREEZER"
+        ],
+        "Name": "Orange",
+        "Price": 100,
+        "Quantity": 150,
+        "TotalPrice": 15000,
+        "Properties": [
+          0
+        ]
+      },
+      {
+        "GetProperties": [
+          "FREEZER"
+        ],
+        "Name": "Pineapple",
+        "Price": 10,
+        "Quantity": 50,
+        "TotalPrice": 500,
+        "Properties": [
+          0
+        ]
+      }
+    ],
+    "Label": "2 - Food storage",
+    "GetTotalCapacity": 5250,
+    "GetFreeSpace": 4750,
+    "GetProperties": [
+      "FREEZER"
+    ],
+    "Id": 2,
+    "Name": "Food storage",
+    "Description": "No description provided",
+    "Level": 1,
+    "Properties": [
+      0
+    ]
+  },
+  {
+    "SubSectors": [
+      {
+        "Inventory": [],
+        "Label": "3A",
+        "ParentId": 3,
+        "Identifier": "A",
+        "Capacity": 6000
+      }
+    ],
+    "Inventory": [],
+    "Label": "3 - Electronics storage",
+    "GetTotalCapacity": 6000,
+    "GetFreeSpace": 6000,
+    "GetProperties": [],
+    "Id": 3,
+    "Name": "Electronics storage",
+    "Description": "No description provided",
+    "Level": 2,
+    "Properties": []
+  }
+]
