@@ -15,7 +15,7 @@ namespace BundaHubManager.Services
             _sectorManager = new SectorManager();
             _jsonDataHandler = new JsonDataHandler();
 
-            // Initialize sectors and items
+            
             InitializeSectors();
         }
 
