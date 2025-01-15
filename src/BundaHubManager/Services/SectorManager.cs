@@ -36,7 +36,6 @@ namespace BundaHubManager.Services
         {
             return _sectors.FirstOrDefault(sector => sector.Id == sectorId);
         }
-
         public (bool, string) AddSector(SectorModel newSector)
         {
             // TODO: Validate newSector
@@ -80,7 +79,6 @@ namespace BundaHubManager.Services
 
             return (true, "Sector deleted successfully.");
         }
-
         public ItemModel[] GetInventory(int? sectorId)
         {
             if (sectorId != null){
