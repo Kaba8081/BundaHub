@@ -20,6 +20,7 @@ namespace BundaHubManager.UI
             "Update",
             "View sectors",
             "Locate item by name",
+            "View statistics",
             "Exit"
         };
 
@@ -27,7 +28,6 @@ namespace BundaHubManager.UI
         {
             _manager = manager;
         }
-
         private static int GetInput(int max, int min = 0)
         {
             int input;
@@ -44,7 +44,6 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Invalid input. ({min} - {max})");
             }
         }
-
         private static void DisplayResult(bool status, string message)
         {
             if (status)
@@ -56,7 +55,6 @@ namespace BundaHubManager.UI
             Console.WriteLine($"Operation failed {message}");
             return;
         }
-
         private static void DisplaySearchResults(List<ItemModel> results)
         {
             if (results.Count > 0)
@@ -73,7 +71,6 @@ namespace BundaHubManager.UI
             }
             Console.WriteLine(" ");
         }
-
         private void ViewSectors()
         {
             var sectors = _manager.GetSectors();
@@ -90,6 +87,26 @@ namespace BundaHubManager.UI
                 Console.WriteLine(new string('-', 20));
             }
         }
+        private void DisplayError(int ilosc, string error)
+        {
+
+            switch (error)
+            {
+
+                case "ilosc":
+                    Console.WriteLine($"Invalid ammount, needs to be between 0 and {ilosc}");
+                    break;
+
+                case " price":
+                    Console.WriteLine($"Invalid {error}, update cancelled");
+                    break;
+
+                case "quantity":
+                    Console.WriteLine($"Invalid {error}, update cancelled");
+                    break;
+            }
+        }
+        
         public void ViewInventory()
         {
             var inventory = _manager.GetInventory();
@@ -138,7 +155,121 @@ namespace BundaHubManager.UI
             
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
         }
+        public void ViewReservations()
+        {
+            var reservations = _manager.GetReservations();
 
+            Console.WriteLine("Current Reservations:");
+            foreach (var reservation in reservations)
+            {
+                Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
+            }
+        }
+        public void ViewStatistics()
+        {
+            Console.WriteLine("Statistics:");
+            Console.WriteLine($"Number of items inside the warehouse: {_manager.GetInventory().Count()}");
+            Console.WriteLine($"Number of sectors inside the warehouse: {_manager.GetSectors().Count()}");
+            foreach (var sector in _manager.GetSectors()) 
+            {
+                Console.WriteLine($"{sector.Name} has {sector.SubSectors.Count()} subsectors");
+            }
+            Console.WriteLine($"Number of reservations inside the warehouse: {_manager.GetReservations().Count()}");
+
+            return;
+        }
+        public void Search()
+        {
+            var inventory = _manager.GetInventory();
+
+            Console.WriteLine("Search by (name/price/quantity): ");
+            string searchBy = Console.ReadLine()?.ToLower();
+
+            switch (searchBy)
+            {
+                case "name":
+                    Console.Write("Enter item name to search: ");
+                    string name = Console.ReadLine();
+                    var nameResults = inventory.Where(i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                    DisplaySearchResults(nameResults);
+                    break;
+
+                case "price":
+                    Console.Write("Enter minimum price: ");
+                    if (!decimal.TryParse(Console.ReadLine(), out decimal minPrice))
+                    {
+                        Console.WriteLine("Invalid price.");
+                        return;
+                    }
+                    Console.Write("Enter maximum price: ");
+                    if (!decimal.TryParse(Console.ReadLine(), out decimal maxPrice))
+                    {
+                        Console.WriteLine("Invalid price.");
+                        return;
+                    }
+                    var priceResults = inventory.Where(i => i.Price >= minPrice && i.Price <= maxPrice).ToList();
+                    DisplaySearchResults(priceResults);
+                    break;
+
+                case "quantity":
+                    Console.Write("Enter minimum quantity: ");
+                    if (!int.TryParse(Console.ReadLine(), out int minQuantity))
+                    {
+                        Console.WriteLine("Invalid quantity.");
+                        return;
+                    }
+                    Console.Write("Enter maximum quantity: ");
+                    if (!int.TryParse(Console.ReadLine(), out int maxQuantity))
+                    {
+                        Console.WriteLine("Invalid quantity.");
+                        return;
+                    }
+                    var quantityResults = inventory.Where(i => i.Quantity >= minQuantity && i.Quantity <= maxQuantity).ToList();
+                    DisplaySearchResults(quantityResults);
+                    break;
+
+
+                default:
+                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
+                    break;
+            }
+        }
+        public void LocateItemByName()
+        {
+            Console.WriteLine("Enter item name to locate: ");
+            string itemName = Console.ReadLine();
+
+            var sectors = _manager.GetSectors();
+            bool itemFound = false;
+
+            foreach (var sector in sectors)
+            {
+                foreach (var item in sector.Inventory)
+                {
+                    if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
+                        itemFound = true;
+                    }
+                }
+                foreach (var subSector in sector.SubSectors)
+                {
+                    foreach (var item in subSector.Inventory)
+                    {
+                        if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
+                            itemFound = true;
+                        }
+                    }
+                }
+            }
+
+            if (!itemFound)
+            {
+                Console.WriteLine($"Item: '{itemName}' not found in any sector.");
+            }
+        }
         public void AddItem()
         {
             Console.WriteLine("Adding item...");
@@ -197,64 +328,6 @@ namespace BundaHubManager.UI
             var (status, message) = _manager.AddItem(newItem);
             DisplayResult(status, message);
         }
-
-        public void Search()
-        {
-            var inventory = _manager.GetInventory();
-
-            Console.WriteLine("Search by (name/price/quantity): ");
-            string searchBy = Console.ReadLine()?.ToLower();
-
-            switch (searchBy)
-            {
-                case "name":
-                    Console.Write("Enter item name to search: ");
-                    string name = Console.ReadLine();
-                    var nameResults = inventory.Where(i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-                    DisplaySearchResults(nameResults);
-                    break;
-
-                case "price":
-                    Console.Write("Enter minimum price: ");
-                    if (!decimal.TryParse(Console.ReadLine(), out decimal minPrice))
-                    {
-                        Console.WriteLine("Invalid price.");
-                        return;
-                    }
-                    Console.Write("Enter maximum price: ");
-                    if (!decimal.TryParse(Console.ReadLine(), out decimal maxPrice))
-                    {
-                        Console.WriteLine("Invalid price.");
-                        return;
-                    }
-                    var priceResults = inventory.Where(i => i.Price >= minPrice && i.Price <= maxPrice).ToList();
-                    DisplaySearchResults(priceResults);
-                    break;
-
-                case "quantity":
-                    Console.Write("Enter minimum quantity: ");
-                    if (!int.TryParse(Console.ReadLine(), out int minQuantity))
-                    {
-                        Console.WriteLine("Invalid quantity.");
-                        return;
-                    }
-                    Console.Write("Enter maximum quantity: ");
-                    if (!int.TryParse(Console.ReadLine(), out int maxQuantity))
-                    {
-                        Console.WriteLine("Invalid quantity.");
-                        return;
-                    }
-                    var quantityResults = inventory.Where(i => i.Quantity >= minQuantity && i.Quantity <= maxQuantity).ToList();
-                    DisplaySearchResults(quantityResults);
-                    break;
-
-
-                default:
-                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
-                    break;
-            }
-        }
-
         public void AddReservation()
         {
             var inventory = _manager.GetInventory();
@@ -312,34 +385,6 @@ namespace BundaHubManager.UI
 
             var (status, message) = _manager.AddReservation(new ReservationModel(itemName, quantity));
             DisplayResult(status, message);
-        }
-    
-        public void ViewReservations()
-        {
-            var reservations = _manager.GetReservations();
-
-            Console.WriteLine("Current Reservations:");
-            foreach (var reservation in reservations)
-            {
-                Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
-            }
-        }
-        private void DisplayError(int ilosc,string error){
-
-            switch (error){
-
-                case "ilosc":
-                    Console.WriteLine($"Invalid ammount, needs to be between 0 and {ilosc}");
-                break;
-
-                case " price":
-                    Console.WriteLine($"Invalid {error}, update cancelled");
-                break;
-
-                case "quantity":
-                    Console.WriteLine($"Invalid {error}, update cancelled");
-                break;
-            }
         }
         public void Update(){
 
@@ -443,44 +488,6 @@ namespace BundaHubManager.UI
                 Console.WriteLine("\nInnvalid choice ");
             }
         }
-
-        public void LocateItemByName()
-        {
-            Console.WriteLine("Enter item name to locate: ");
-            string itemName = Console.ReadLine();
-
-            var sectors = _manager.GetSectors();
-            bool itemFound = false;
-
-            foreach (var sector in sectors)
-            {
-                foreach (var item in sector.Inventory)
-                {
-                    if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
-                        itemFound = true;
-                    }
-                }
-                foreach (var subSector in sector.SubSectors)
-                {
-                    foreach (var item in subSector.Inventory)
-                    {
-                        if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
-                            itemFound = true;
-                        }
-                    }
-                }
-            }
-
-            if(!itemFound)
-            {
-                Console.WriteLine($"Item: '{itemName}' not found in any sector.");
-            }
-        }
-
         public void Run() 
         {
             Console.WriteLine("Welcome to BundaHub!");
@@ -522,6 +529,9 @@ namespace BundaHubManager.UI
                         LocateItemByName();
                         break;
                     case 9:
+                        ViewStatistics();
+                        break;
+                    case 10:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }

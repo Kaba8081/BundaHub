@@ -18,11 +18,8 @@ namespace BundaHubManager.Services
             // Initialize sectors and items
             InitializeSectors();
         }
-
         private void InitializeSectors()
         {
-            
-            
             //Deafult data
             //Delete before project presentation
 
@@ -57,7 +54,6 @@ namespace BundaHubManager.Services
 
             LoadDataFromJson();
         }
-
         private void LoadDataFromJson()
         {
             // Load sectors from JSON file
@@ -70,7 +66,6 @@ namespace BundaHubManager.Services
             // Load reservations from JSON file
             _reservations = _jsonDataHandler.LoadData<List<ReservationModel>>("reservations.json");
         }
-
         private void SaveDataToJson()
         {
             var sectors = _sectorManager.GetSectors();
@@ -194,8 +189,6 @@ namespace BundaHubManager.Services
             SaveDataToJson();
             return (true, "Reservation added successfully.");
         }
-
-
         public (bool, string) RemoveItem(ItemModel item)
         {
             
