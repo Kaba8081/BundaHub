@@ -19,6 +19,7 @@ namespace BundaHubManager.UI
             "View reservations",
             "Update",
             "View sectors",
+            "Locate item by name",
             "Exit"
         };
 
@@ -443,6 +444,43 @@ namespace BundaHubManager.UI
             }
         }
 
+        public void LocateItemByName()
+        {
+            Console.WriteLine("Enter item name to locate: ");
+            string itemName = Console.ReadLine();
+
+            var sectors = _manager.GetSectors();
+            bool itemFound = false;
+
+            foreach (var sector in sectors)
+            {
+                foreach (var item in sector.Inventory)
+                {
+                    if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
+                        itemFound = true;
+                    }
+                }
+                foreach (var subSector in sector.SubSectors)
+                {
+                    foreach (var item in subSector.Inventory)
+                    {
+                        if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
+                            itemFound = true;
+                        }
+                    }
+                }
+            }
+
+            if(!itemFound)
+            {
+                Console.WriteLine($"Item: '{itemName}' not found in any sector.");
+            }
+        }
+
         public void Run() 
         {
             Console.WriteLine("Welcome to BundaHub!");
@@ -481,6 +519,9 @@ namespace BundaHubManager.UI
                         ViewSectors();
                         break;
                     case 8:
+                        LocateItemByName();
+                        break;
+                    case 9:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }
