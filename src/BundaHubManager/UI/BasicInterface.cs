@@ -170,6 +170,10 @@ namespace BundaHubManager.UI
             Console.WriteLine("Statistics:");
             Console.WriteLine($"Number of items inside the warehouse: {_manager.GetInventory().Count()}");
             Console.WriteLine($"Number of sectors inside the warehouse: {_manager.GetSectors().Count()}");
+            foreach (var sector in _manager.GetSectors()) 
+            {
+                Console.WriteLine($"{sector.Name} has {sector.SubSectors.Count()} subsectors");
+            }
             Console.WriteLine($"Number of reservations inside the warehouse: {_manager.GetReservations().Count()}");
 
             return;
