@@ -94,6 +94,25 @@ namespace BundaHubManager.Services
             }
             return fullInventory;
         }
+        private static IList<ItemModel> _CalculateAvailableQuantities(IList<ItemModel> inventory, IList<ReservationModel> reservations) 
+        {
+            var resultInventory = inventory;
+
+            foreach (var rsrv in reservations) 
+            {
+                if (resultInventory.Any(x => x.Name.Equals(rsrv.ItemName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var existingItem = resultInventory.First(x => x.Name.Equals(rsrv.ItemName, StringComparison.OrdinalIgnoreCase));
+                    existingItem.Quantity -= rsrv.Quantity;
+
+                    // Ensure the quantity is not negative
+                    // * Shouldn't happend, but making reservations doesn't have a check for quantity
+                    if (existingItem.Quantity < 0) existingItem.Quantity = 0;
+                }
+            }
+
+            return resultInventory;
+        }
         private IList<ItemModel> _SortInventory(string sortBy, bool ascending = true)
         {
             var _inventory = GetInventory();
@@ -120,17 +139,21 @@ namespace BundaHubManager.Services
         }
         public IList<ItemModel> GetInventory()
         {
-            // TODO: Account for reserved quantities
             // TODO: Add a parameter for specific sorting
 
             IList<IList<ItemModel>> _sector_inventories = new List<IList<ItemModel>>();
+            IList<ReservationModel> _reservations = GetReservations();
+            IList<ItemModel> _fullInventory = new List<ItemModel>();
 
             foreach (var sector in _sectorManager.GetSectors())
             {
                 _sector_inventories.Add(sector.Inventory);
             }
-            var newInv = _MergeInventories(_sector_inventories);
-            return newInv;
+            
+            _fullInventory = _MergeInventories(_sector_inventories);
+            _fullInventory = _CalculateAvailableQuantities(_fullInventory, _reservations);
+
+            return _fullInventory;
         }
         public IList<SectorModel> GetSectors(Dictionary<string, object>? parameters)
         {

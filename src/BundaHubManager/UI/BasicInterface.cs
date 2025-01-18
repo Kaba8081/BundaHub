@@ -113,14 +113,14 @@ namespace BundaHubManager.UI
             
             if (colSizes[0] < "Inventory:".Length) colSizes[0] = "Inventory:".Length;
             if (colSizes[1] < "Price".Length) colSizes[1] = "Price".Length;
-            if (colSizes[2] < "Quantity".Length) colSizes[2] = "Quantity".Length;
+            if (colSizes[2] < "Available".Length) colSizes[2] = "Available".Length;
             if (colSizes[3] < "Total Price".Length) colSizes[3] = "Total Price".Length;
             if (colSizes[4] < "Properties".Length) colSizes[4] = "Properties".Length;
 
            
             Console.Write("Inventory:".PadLeft(colSizes[0]));
             Console.Write("Price".PadLeft(colSizes[1] + 2));
-            Console.Write("Quantity".PadLeft(colSizes[2] + 2));
+            Console.Write("Available".PadLeft(colSizes[2] + 2));
             Console.Write("Total Price".PadLeft(colSizes[3] + 2));
             Console.WriteLine("Properties".PadLeft(colSizes[4] + 2));
 
