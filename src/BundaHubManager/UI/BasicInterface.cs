@@ -19,7 +19,6 @@ namespace BundaHubManager.UI
             "View reservations",
             "Update",
             "View sectors",
-            "Locate item by name",
             "View statistics",
             "Exit"
         };
@@ -169,8 +168,9 @@ namespace BundaHubManager.UI
         public void Search()
         {
             var inventory = _manager.GetInventory();
+            var sectors = _manager.GetSectors();
 
-            Console.WriteLine("Search by (name/price/quantity): ");
+            Console.WriteLine("Search by (name/price/quantity/locate): ");
             string searchBy = Console.ReadLine()?.ToLower();
 
             switch (searchBy)
@@ -216,46 +216,43 @@ namespace BundaHubManager.UI
                     DisplaySearchResults(quantityResults);
                     break;
 
+                case "locate":
+                    Console.WriteLine("Enter item name to locate: ");
+                    string itemName = Console.ReadLine();
+                    bool itemFound = false;
 
-                default:
-                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
-                    break;
-            }
-        }
-        public void LocateItemByName()
-        {
-            Console.WriteLine("Enter item name to locate: ");
-            string itemName = Console.ReadLine();
-
-            var sectors = _manager.GetSectors();
-            bool itemFound = false;
-
-            foreach (var sector in sectors)
-            {
-                foreach (var item in sector.Inventory)
-                {
-                    if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                    foreach (var sector in sectors)
                     {
-                        Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
-                        itemFound = true;
-                    }
-                }
-                foreach (var subSector in sector.SubSectors)
-                {
-                    foreach (var item in subSector.Inventory)
-                    {
-                        if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                        foreach (var item in sector.Inventory)
                         {
-                            Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
-                            itemFound = true;
+                            if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
+                                itemFound = true;
+                            }
+                        }
+                        foreach (var subSector in sector.SubSectors)
+                        {
+                            foreach (var item in subSector.Inventory)
+                            {
+                                if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
+                                    itemFound = true;
+                                }
+                            }
                         }
                     }
-                }
-            }
 
-            if (!itemFound)
-            {
-                Console.WriteLine($"Item: '{itemName}' not found in any sector.");
+                    if (!itemFound)
+                    {
+                        Console.WriteLine($"Item: '{itemName}' not found in any sector.");
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', 'quantity', or 'locate'.");
+                    break;
             }
         }
         public void AddItem()
@@ -514,12 +511,9 @@ namespace BundaHubManager.UI
                         ViewSectors();
                         break;
                     case 8:
-                        LocateItemByName();
-                        break;
-                    case 9:
                         ViewStatistics();
                         break;
-                    case 10:
+                    case 9:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }
