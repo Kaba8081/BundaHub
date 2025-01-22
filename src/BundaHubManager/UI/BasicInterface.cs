@@ -1,6 +1,9 @@
-using Domain;
+using Domain.Models;
 using BundaHubManager.Services.Interfaces;
 using BundaHubManager.UI.Interfaces;
+using Domain.Entites;
+using System.Data;
+using System.ComponentModel.Design;
 
 namespace BundaHubManager.UI
 {
@@ -14,6 +17,9 @@ namespace BundaHubManager.UI
             "Search",
             "Make reservation",
             "View reservations",
+            "Update",
+            "View sectors",
+            "View statistics",
             "Exit"
         };
 
@@ -21,7 +27,6 @@ namespace BundaHubManager.UI
         {
             _manager = manager;
         }
-
         private static int GetInput(int max, int min = 0)
         {
             int input;
@@ -38,7 +43,6 @@ namespace BundaHubManager.UI
                 Console.WriteLine($"Invalid input. ({min} - {max})");
             }
         }
-
         private static void DisplayResult(bool status, string message)
         {
             if (status)
@@ -50,8 +54,7 @@ namespace BundaHubManager.UI
             Console.WriteLine($"Operation failed {message}");
             return;
         }
-
-        private static void DisplaySearchResults(List<Item> results)
+        private static void DisplaySearchResults(List<ItemModel> results)
         {
             if (results.Count > 0)
             {
@@ -67,120 +70,107 @@ namespace BundaHubManager.UI
             }
             Console.WriteLine(" ");
         }
-
+        private void ViewSectors()
+        {
+            var sectors = _manager.GetSectors();
+            foreach (SectorModel sector in sectors)
+            {
+                Console.WriteLine($"Sector: {sector.Label}, Capacity: {sector.GetTotalCapacity}, Free Space: {sector.GetFreeSpace}");
+                Console.WriteLine($"Description: {sector.Description}");
+                Console.WriteLine($"Properties: {String.Join(", ", sector.GetProperties)}");
+                Console.WriteLine(new string('-', 20));
+                foreach (SubSectorModel subSector in sector.SubSectors)
+                {   
+                    Console.WriteLine($"Subsector: {subSector.Label}, Capacity: {subSector.Capacity}");
+                }
+                Console.WriteLine(new string('-', 20));
+            }
+        }
+        private void DisplayError(string error)
+        {
+            Console.WriteLine($"Error, Invalid {error}");
+        }
+        
         public void ViewInventory()
         {
             var inventory = _manager.GetInventory();
+            
+            if (inventory.Count == 0)
+            {
+                Console.WriteLine("No items in inventory.");
+                return;
+            }
 
             int[] colSizes = {
                 inventory.Max(i => i.Name.Length),
                 inventory.Max(i => i.Price.ToString().Length),
                 inventory.Max(i => i.Quantity.ToString().Length),
                 inventory.Max(i => i.TotalPrice.ToString().Length),
-                inventory.Max(i => i.IsFragile.ToString().Length),
-                inventory.Max(i => i.IsColdStored.ToString().Length),
+                inventory.Max(i => String.Join(", ", i.GetProperties).Length),
             };
 
             
             if (colSizes[0] < "Inventory:".Length) colSizes[0] = "Inventory:".Length;
             if (colSizes[1] < "Price".Length) colSizes[1] = "Price".Length;
-            if (colSizes[2] < "Quantity".Length) colSizes[2] = "Quantity".Length;
+            if (colSizes[2] < "Available".Length) colSizes[2] = "Available".Length;
             if (colSizes[3] < "Total Price".Length) colSizes[3] = "Total Price".Length;
-            if (colSizes[4] < "Fragile".Length) colSizes[4] = "Fragile".Length;
-            if (colSizes[5] < "Cold Stored".Length) colSizes[5] = "Cold Stored".Length;
+            if (colSizes[4] < "Properties".Length) colSizes[4] = "Properties".Length;
 
            
             Console.Write("Inventory:".PadLeft(colSizes[0]));
             Console.Write("Price".PadLeft(colSizes[1] + 2));
-            Console.Write("Quantity".PadLeft(colSizes[2] + 2));
+            Console.Write("Available".PadLeft(colSizes[2] + 2));
             Console.Write("Total Price".PadLeft(colSizes[3] + 2));
-            Console.Write("Fragile".PadLeft(colSizes[4] + 2));
-            Console.WriteLine("Cold Stored".PadLeft(colSizes[5] + 2));
+            Console.WriteLine("Properties".PadLeft(colSizes[4] + 2));
 
             
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
 
             
-            foreach (var item in inventory)
+            foreach (ItemModel item in inventory)
             {
                 Console.Write(item.Name.PadLeft(colSizes[0] + 2));
                 Console.Write(item.Price.ToString().PadLeft(colSizes[1] + 2));
                 Console.Write(item.Quantity.ToString().PadLeft(colSizes[2] + 2));
                 Console.Write(item.TotalPrice.ToString().PadLeft(colSizes[3] + 2));
-                Console.Write(item.IsFragile ? "Yes".PadLeft(colSizes[4] + 2) : "No".PadLeft(colSizes[4] + 2));
-                Console.WriteLine(item.IsColdStored ? "Yes".PadLeft(colSizes[5] + 2) : "No".PadLeft(colSizes[5] + 2));
+                Console.WriteLine(String.Join(", ", item.GetProperties).PadLeft(colSizes[4] + 2));
             }
 
             
             Console.WriteLine(new string('-', colSizes.Sum() + 10));
         }
-
-        public void AddItem()
+        public void ViewReservations()
         {
-            Console.WriteLine("Adding item...");
-            Console.Write("Enter item name: ");
-            string name = Console.ReadLine();
+            var reservations = _manager.GetReservations();
 
-            Console.Write("Enter item price: ");
-            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+            Console.WriteLine("Current Reservations:");
+            foreach (var reservation in reservations)
             {
-                Console.WriteLine("Invalid price. Item not added.");
-                return;
+                Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
             }
-
-            Console.Write("Enter item quantity: ");
-            if (!int.TryParse(Console.ReadLine(), out int quantity))
-            {
-                Console.WriteLine("Invalid quantity. Item not added.");
-                return;
+            if (reservations.Count == 0) {
+                Console.WriteLine("No reserved items found");
             }
-
-            bool isFragile;
-            while (true)
-            {
-                Console.Write("Is the item fragile? (yes/no): ");
-                string fragileInput = Console.ReadLine()?.Trim().ToLower();
-                if (fragileInput == "yes")
-                {
-                    isFragile = true;
-                    break;
-                }
-                else if (fragileInput == "no")
-                {
-                    isFragile = false;
-                    break;
-                }
-                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
-            }
-
-            bool isColdStored;
-            while (true)
-            {
-                Console.Write("Should the item be cold stored? (yes/no): ");
-                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
-                if (coldStoredInput == "yes")
-                {
-                    isColdStored = true;
-                    break;
-                }
-                else if (coldStoredInput == "no")
-                {
-                    isColdStored = false;
-                    break;
-                }
-                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
-            }
-
-            Item newItem = new Item(name, price, quantity, isFragile, isColdStored);
-            var (status, message) = _manager.AddItem(newItem);
-            DisplayResult(status, message);
         }
+        public void ViewStatistics()
+        {
+            Console.WriteLine("Statistics:");
+            Console.WriteLine($"Number of items inside the warehouse: {_manager.GetInventory().Count()}");
+            Console.WriteLine($"Number of sectors inside the warehouse: {_manager.GetSectors().Count()}");
+            foreach (var sector in _manager.GetSectors()) 
+            {
+                Console.WriteLine($"{sector.Name} has {sector.SubSectors.Count()} subsectors");
+            }
+            Console.WriteLine($"Number of reservations inside the warehouse: {_manager.GetReservations().Count()}");
 
+            return;
+        }
         public void Search()
         {
             var inventory = _manager.GetInventory();
+            var sectors = _manager.GetSectors();
 
-            Console.WriteLine("Search by (name/price/quantity): ");
+            Console.WriteLine("Search by (name/price/quantity/locate): ");
             string searchBy = Console.ReadLine()?.ToLower();
 
             switch (searchBy)
@@ -226,17 +216,119 @@ namespace BundaHubManager.UI
                     DisplaySearchResults(quantityResults);
                     break;
 
+                case "locate":
+                    Console.WriteLine("Enter item name to locate: ");
+                    string itemName = Console.ReadLine();
+                    bool itemFound = false;
+
+                    foreach (var sector in sectors)
+                    {
+                        foreach (var item in sector.Inventory)
+                        {
+                            if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}");
+                                itemFound = true;
+                            }
+                        }
+                        foreach (var subSector in sector.SubSectors)
+                        {
+                            foreach (var item in subSector.Inventory)
+                            {
+                                if (item.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Console.WriteLine($"Item: '{itemName}' found in Sector: {sector.Label}, Subsector: {subSector.Label}");
+                                    itemFound = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!itemFound)
+                    {
+                        Console.WriteLine($"Item: '{itemName}' not found in any sector.");
+                    }
+                    break;
 
                 default:
-                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', or 'quantity'.");
+                    Console.WriteLine("Invalid search criteria. Choose either 'name', 'price', 'quantity', or 'locate'.");
                     break;
             }
         }
+        public void AddItem()
+        {
+            Console.WriteLine("Adding item...");
+            Console.Write("Enter item name: ");
+            string name = Console.ReadLine();
 
+            Console.Write("Enter item price: ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+            {
+                Console.WriteLine("Invalid price. Item not added.");
+                return;
+            }
+
+            Console.Write("Enter item quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out int quantity))
+            {
+                Console.WriteLine("Invalid quantity. Item not added.");
+                return;
+            }
+
+            List<ItemProperties> properties = new List<ItemProperties>();
+
+            while (true)
+            {
+                Console.Write("Is the item fragile? (yes/no): ");
+                string fragileInput = Console.ReadLine()?.Trim().ToLower();
+                if (fragileInput == "yes")
+                {
+                    properties.Add(ItemProperties.FRAGILE);
+                    break;
+                }
+                else if (fragileInput == "no")
+                {
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
+
+            while (true)
+            {
+                Console.Write("Should the item be cold stored? (yes/no): ");
+                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
+                if (coldStoredInput == "yes")
+                {
+                    properties.Add(ItemProperties.FREEZER);
+                    break;
+                }
+                else if (coldStoredInput == "no")
+                {
+                    break;
+                }
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
+            }
+
+            ItemModel newItem = new ItemModel(name, price, quantity, properties.ToArray());
+            var (status, message) = _manager.AddItem(newItem);
+            DisplayResult(status, message);
+        }
         public void AddReservation()
         {
             var inventory = _manager.GetInventory();
-            var (reservations, reservedQuantities) = _manager.GetReservations();
+            var reservations = _manager.GetReservations();
+            var reservedQuantities = new Dictionary<string, int>();
+            foreach (var reservation in reservations)
+            {
+                if (reservedQuantities.ContainsKey(reservation.ItemName))
+                {
+                    reservedQuantities[reservation.ItemName] += reservation.Quantity;
+                }
+                else
+                {
+                    reservedQuantities[reservation.ItemName] = reservation.Quantity;
+                }
+            }
 
             Console.Write("Enter item name to reserve: ");
             string itemName = Console.ReadLine();
@@ -276,21 +368,111 @@ namespace BundaHubManager.UI
                 reservedQuantities[itemName] = quantity;
             }
 
-            var (status, message) = _manager.AddReservation(new Reservation(itemName, quantity));
+            var (status, message) = _manager.AddReservation(new ReservationModel(itemName, quantity));
             DisplayResult(status, message);
         }
+        public void Update(){
 
-        public void ViewReservations()
-        {
-            var (reservations, _) = _manager.GetReservations();
+            var inventory = _manager.GetInventory();
+            int ilosc = inventory.Count();
+            ViewInventory();
 
-            Console.WriteLine("Current Reservations:");
-            foreach (var reservation in reservations)
-            {
-                Console.WriteLine($"Item: {reservation.ItemName}, Quantity: {reservation.Quantity}, Date: {reservation.ReservationDate}");
+            Console.WriteLine("What do you want to do with this invenntory ? : (update/remove)");
+            string choice = Console.ReadLine()?.ToLower();
+            
+            if(choice == "update"){
+
+                Console.Write("\nEnter the number of the item you want to update: ");
+               
+                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
+                    
+                    string error = "ammount";
+                    DisplayError(error);
+                    return;
+                }
+                
+                var selectedItem = inventory[selection - 1];
+                Console.WriteLine($"\nUpdating {selectedItem.Name}:");
+                
+                Console.Write("\nEnter new name (press Enter to keep current): ");
+                string newName = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(newName)){
+
+                    newName = selectedItem.Name;
+                }
+                
+                Console.Write("\nEnter new price (press Enter to keep current): ");
+                string priceInput = Console.ReadLine();
+                decimal newPrice = selectedItem.Price;
+
+                if (!string.IsNullOrWhiteSpace(priceInput)){
+
+                    if (!decimal.TryParse(priceInput, out newPrice)){
+
+                        string error = "price";
+                        DisplayError(error);
+                        return;
+                    }
+                }
+                
+                Console.Write("\nEnter new quantity (press Enter to keep current): ");
+                string quantityInput = Console.ReadLine();
+                int newQuantity = (int)selectedItem.Quantity;  
+
+                if (!string.IsNullOrWhiteSpace(quantityInput)){
+
+                    if (!int.TryParse(quantityInput, out newQuantity)){
+
+                        string error = "ammount";
+                        DisplayError(error); 
+                        return;
+                    }
+                }
+               
+                List<ItemProperties> properties = new List<ItemProperties>();
+                Console.Write("\nIs the item fragile? (yes/no): ");
+                string fragileInput = Console.ReadLine()?.Trim().ToLower();
+
+                if (fragileInput == "yes"){
+
+                    properties.Add(ItemProperties.FRAGILE);
+                }
+               
+                Console.Write("\nShould the item be cold stored? (yes/no): ");
+                string coldStoredInput = Console.ReadLine()?.Trim().ToLower();
+
+                if (coldStoredInput == "yes"){
+
+                    properties.Add(ItemProperties.FREEZER);
+                }
+
+                selectedItem.Name = newName;
+                selectedItem.Price = newPrice;
+                selectedItem.Quantity = newQuantity;
+                selectedItem.Properties = properties.ToArray();
+               
+                Console.WriteLine("\nItem Updated Succesfully");
+            }
+
+            else if(choice == "remove"){
+
+                Console.Write("\nEnter the number of the item you want to remove: ");
+
+                if (!int.TryParse(Console.ReadLine(), out int selection) || selection < 1 || selection > ilosc){
+
+                    string error = "ammount";
+                    DisplayError(error);
+                    return;
+                }
+                var itemToRemove = inventory[selection - 1];
+                (bool status, string message) = _manager.RemoveItem(itemToRemove);
+            }
+            else{
+                string error = "choice";
+                DisplayError(error);
             }
         }
-
         public void Run() 
         {
             Console.WriteLine("Welcome to BundaHub!");
@@ -323,6 +505,15 @@ namespace BundaHubManager.UI
                         ViewReservations();
                         break;
                     case 6:
+                        Update();
+                        break;
+                    case 7:
+                        ViewSectors();
+                        break;
+                    case 8:
+                        ViewStatistics();
+                        break;
+                    case 9:
                         Console.WriteLine("Goodbye! - Thank you for using BundaHub.");
                         return;
                 }

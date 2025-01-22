@@ -1,5 +1,5 @@
 # BundaHub
-Repozytorium stworzone na potrzeby przedmiotu *Inżynieria oprogramowania*. \    
+Repozytorium stworzone na potrzeby przedmiotu *Inżynieria oprogramowania*.
 **BundaHub** jest systemem zarządzania magazynem, pozwalającym na monitorowanie zawartości, statystyk, planowaniem wysyłek oraz odbioru towaru, a także zarządzaniem pracownikami danego obiektu.
 
 Autorzy: \
@@ -17,7 +17,7 @@ Informatyka stacjonarna sem. 3 grupa 3B
 ## Wymagania funkcjonalne
 Funkcje ogólne:
 - Zarządzanie oraz podgląd statystyk danego magazynu, 
-- Odpowiednie przydzielanie sektorów magazynu dla ,
+- Odpowiednie przydzielanie sektorów magazynu,
 
 Aplikacja administacyjna:
 - Podgląd stanu magazynu,
